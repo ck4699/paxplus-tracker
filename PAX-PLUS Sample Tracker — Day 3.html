@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PAX-PLUS Sample Tracker</title>
+<style>
+:root {
+  --bg:#F0F2F5;--surface:#FFF;--surface-2:#F7F8FA;
+  --border:#E2E5EA;--border-strong:#CBD0D8;
+  --text:#141820;--text-2:#4A5260;--text-3:#8A92A0;
+  --accent:#1A56DB;--accent-bg:#EBF2FF;--accent-text:#1A3A7A;
+  --success:#0F7B56;--success-bg:#E6F7F2;--success-text:#0A5C40;
+  --warning:#B45309;--warning-bg:#FEF3C7;--warning-text:#92400E;
+  --danger:#C0392B;--danger-bg:#FEF0EE;--danger-text:#9B2819;
+  --purple:#6D28D9;--purple-bg:#EDE9FE;--purple-text:#4C1D95;
+  --radius:10px;--radius-sm:6px;--radius-lg:16px;
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --mono:'SF Mono','Fira Code',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+
+/* Shell */
+.shell{display:flex;height:100vh;min-height:0;overflow:hidden}
+
+/* Sidebar */
+.sidebar{width:300px;min-width:300px;background:var(--surface);border-right:0.5px solid var(--border);display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.sidebar-header{padding:16px 18px 14px;border-bottom:0.5px solid var(--border)}
+.logo-row{display:flex;align-items:center;gap:9px;margin-bottom:3px}
+.logo-mark{width:26px;height:26px;background:var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.logo-mark svg{width:14px;height:14px}
+.logo-name{font-size:13px;font-weight:600;letter-spacing:-.01em}
+.logo-sub{font-size:10px;color:var(--text-3);margin-top:1px}
+.site-switcher{margin:10px 18px 0;display:flex;gap:4px}
+.site-btn{flex:1;font-size:10px;font-weight:600;padding:4px 0;border-radius:5px;border:0.5px solid var(--border-strong);background:var(--surface-2);color:var(--text-3);cursor:pointer;transition:all .12s;text-align:center}
+.site-btn.active{background:var(--accent-bg);color:var(--accent-text);border-color:#B5CCEF}
+.sidebar-scroll{flex:1;overflow-y:auto;padding-bottom:16px}
+.section-label{font-size:9px;font-weight:600;color:var(--text-3);letter-spacing:.07em;text-transform:uppercase;padding:14px 18px 6px}
+
+/* Stat strip */
+.stat-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:0 14px 12px}
+.stat-card{background:var(--surface-2);border:0.5px solid var(--border);border-radius:7px;padding:9px 10px 8px;text-align:center}
+.stat-num{font-size:22px;font-weight:700;letter-spacing:-.03em;line-height:1}
+.stat-num.a{color:var(--accent)}.stat-num.w{color:var(--warning)}.stat-num.s{color:var(--success)}.stat-num.p{color:var(--purple)}
+.stat-lbl{font-size:9px;color:var(--text-3);margin-top:3px;font-weight:500;text-transform:uppercase;letter-spacing:.04em}
+
+/* Sample cards */
+.sc{margin:0 10px 6px;background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:11px 13px;cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.sc:hover{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-bg)}
+.sc.active{border-color:var(--accent);background:var(--accent-bg)}
+.sc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.sc-pid{font-size:12px;font-weight:600;font-family:var(--mono)}
+.sc-cyc{font-size:10px;font-weight:600;color:var(--accent-text);background:var(--accent-bg);border:0.5px solid #B5CCEF;border-radius:4px;padding:1px 6px}
+.sc-status{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:500;border-radius:4px;padding:2px 7px;margin-bottom:7px}
+.sc-status .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.sc-status.stored{color:var(--success-text);background:var(--success-bg)}
+.sc-status.stored .dot{background:var(--success)}
+.sc-status.processing{color:var(--accent-text);background:var(--accent-bg)}
+.sc-status.processing .dot{background:var(--accent);animation:pulse 1.4s infinite}
+.sc-status.shipped{color:var(--purple-text);background:var(--purple-bg)}
+.sc-status.shipped .dot{background:var(--purple)}
+.sc-status.received{color:var(--success-text);background:#D1FAE5}
+.sc-status.received .dot{background:#059669}
+.sc-status.overdue{color:var(--danger-text);background:var(--danger-bg)}
+.sc-status.overdue .dot{background:var(--danger);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.sc-meta{display:flex;gap:8px;flex-wrap:wrap}
+.sc-mi{font-size:10px;color:var(--text-2)}
+.sc-deadline{font-size:9px;color:var(--warning);font-weight:600;margin-top:5px}
+.sc-overdue{font-size:9px;color:var(--danger);font-weight:600;margin-top:5px}
+.sc-dev{font-size:9px;color:var(--danger);font-weight:500;margin-top:3px}
+
+/* Main */
+.main{flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.main-header{background:var(--surface);border-bottom:0.5px solid var(--border);padding:14px 26px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;min-height:0}
+.main-title{font-size:15px;font-weight:600;letter-spacing:-.01em}
+.main-sub{font-size:11px;color:var(--text-3);margin-top:2px}
+.h-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.main-scroll{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:22px 26px}
+
+/* Buttons */
+.btn{font-family:var(--font);font-size:12px;font-weight:500;border-radius:var(--radius-sm);padding:7px 13px;cursor:pointer;border:0.5px solid var(--border-strong);background:var(--surface);color:var(--text);transition:background .12s;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn:hover{background:var(--surface-2)}
+.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn.primary:hover{background:#1348BB}
+.btn.success-btn{background:var(--success);color:#fff;border-color:var(--success)}
+.btn.success-btn:hover{background:#0A5C40}
+.btn.demo-btn{background:#7C3AED;color:#fff;border-color:#7C3AED;font-weight:600}
+.btn.demo-btn:hover{background:#6D28D9}
+.btn svg{width:13px;height:13px}
+
+/* Views — each active view is a flex column filling .main */
+.view{display:none}
+.view.active{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden}
+/* Welcome is the exception — it has its own internal scroll div */
+#view-welcome.active{display:block;flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
+
+/* Welcome */
+.welcome-wrap{max-width:520px;margin:0 auto;padding:32px 0}
+.welcome-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:28px}
+.welcome-icon{width:52px;height:52px;background:var(--accent);border-radius:13px;display:flex;align-items:center;justify-content:center;margin:0 auto 18px}
+.welcome-icon svg{width:26px;height:26px}
+.welcome-title{font-size:20px;font-weight:700;letter-spacing:-.02em;text-align:center;margin-bottom:6px}
+.welcome-desc{font-size:13px;color:var(--text-2);text-align:center;line-height:1.6;margin-bottom:22px}
+.scan-area{background:var(--accent-bg);border:1.5px dashed #B5CCEF;border-radius:var(--radius);padding:18px;margin-bottom:16px}
+.scan-lbl{font-size:10px;font-weight:600;color:var(--accent-text);letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px}
+.scan-row{display:flex;gap:8px}
+.scan-row input{flex:1;font-family:var(--mono);font-size:13px;background:var(--surface);border-color:#B5CCEF}
+.scan-hint{font-size:10px;color:var(--accent-text);margin-top:6px}
+.barcode-svg{display:flex;gap:1.5px;height:32px;margin:0 0 10px;align-items:stretch}
+.barcode-svg span{border-radius:1px}
+
+/* Form cards */
+.form-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:16px}
+.fc-header{padding:14px 18px 12px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.fc-title{font-size:13px;font-weight:600;display:flex;align-items:center;gap:7px}
+.fc-badge{font-size:9px;font-weight:600;padding:2px 7px;border-radius:4px;letter-spacing:.03em}
+.b-003a{background:var(--accent-bg);color:var(--accent-text);border:0.5px solid #B5CCEF}
+.b-003b{background:var(--success-bg);color:var(--success-text);border:0.5px solid #9FD5C4}
+.b-mf{background:var(--purple-bg);color:var(--purple-text);border:0.5px solid #C4B5FD}
+.fc-body{padding:16px 18px}
+
+/* Forms */
+label{display:block;font-size:10px;font-weight:600;color:var(--text-2);margin-bottom:4px;letter-spacing:.02em}
+input[type=text],input[type=number],input[type=time],input[type=date],select,textarea{
+  width:100%;font-family:var(--font);font-size:12px;color:var(--text);background:var(--surface-2);
+  border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:7px 9px;outline:none;
+  transition:border-color .12s,box-shadow .12s;-webkit-appearance:none
+}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-bg);background:var(--surface)}
+.f-scan{font-family:var(--mono);background:var(--accent-bg);border-color:#B5CCEF}
+.f-auto{background:var(--success-bg);border-color:#9FD5C4;color:var(--success-text);font-family:var(--mono);font-size:11px}
+.f-calc{background:var(--warning-bg);border-color:#FCD34D;color:var(--warning-text);font-weight:600;font-family:var(--mono)}
+.f-danger{border-color:var(--danger)!important;background:var(--danger-bg)!important}
+.row{margin-bottom:12px}.row:last-child{margin-bottom:0}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px}
+
+/* Checks */
+.ck-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:0.5px solid var(--border)}
+.ck-row:last-child{border-bottom:none}
+.ck-lbl{font-size:11px;color:var(--text-2);flex:1;line-height:1.4}
+.yn{display:flex;gap:5px;margin-left:10px;flex-shrink:0}
+.yn-b{font-size:10px;font-weight:600;padding:3px 9px;border-radius:4px;border:0.5px solid var(--border-strong);background:var(--surface-2);color:var(--text-3);cursor:pointer;transition:all .12s}
+.yn-b.yes.on{background:var(--success-bg);color:var(--success-text);border-color:#9FD5C4}
+.yn-b.no.on{background:var(--danger-bg);color:var(--danger-text);border-color:#F5A49A}
+
+/* Deviation */
+.dev-box{margin-top:6px;background:var(--danger-bg);border:0.5px solid #F5A49A;border-radius:var(--radius-sm);padding:9px 11px;animation:slideD .18s ease}
+@keyframes slideD{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:translateY(0)}}
+.dev-title{font-size:10px;font-weight:600;color:var(--danger);margin-bottom:6px;display:flex;align-items:center;gap:4px}
+.dev-box textarea{font-size:11px;background:var(--surface);resize:none;height:48px}
+
+/* Tube grid */
+.tube-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px}
+.tube-wrap{text-align:center}
+.tube-num{font-size:9px;font-weight:600;color:var(--text-2);margin-bottom:4px}
+.tube-vis{width:30px;height:52px;border-radius:4px 4px 8px 8px;border:1.5px solid var(--border-strong);margin:0 auto 5px;position:relative;cursor:pointer;transition:all .2s}
+.tube-vis::before{content:'';position:absolute;top:-5px;left:50%;transform:translateX(-50%);width:10px;height:5px;background:var(--border-strong);border-radius:2px 2px 0 0}
+.tube-ok{background:linear-gradient(180deg,#D1FAE5 0%,#6EE7B7 100%);border-color:var(--success)}
+.tube-default{background:linear-gradient(180deg,#EEF2F9 0%,#D6E0F0 100%)}
+.tube-reserved{background:linear-gradient(180deg,#FEF3C7 0%,#FCD34D 100%);border-color:#F59E0B}
+.tube-bad{background:linear-gradient(180deg,#FEE2E2 0%,#FCA5A5 100%);border-color:var(--danger)}
+.tube-lbl{font-size:8px;font-weight:700;color:#444;text-align:center;padding:0 2px}
+.tube-res-lbl{font-size:8px;color:var(--warning);font-weight:600;text-align:center;margin-top:2px}
+
+/* Haemo */
+.haemo-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
+.haemo-cell label{font-size:10px}
+.haemo-cell input{text-align:center;font-size:15px;font-weight:600}
+.calc-result{background:var(--warning-bg);border:0.5px solid #FCD34D;border-radius:var(--radius-sm);padding:11px 13px;margin-top:8px}
+.calc-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
+.calc-row:last-child{margin-bottom:0}
+.calc-lbl{font-size:10px;color:var(--warning-text)}
+.calc-val{font-size:13px;font-weight:700;color:var(--warning);font-family:var(--mono)}
+.calc-big{font-size:18px;color:var(--accent)}
+
+/* Step progress */
+.steps{display:flex;align-items:center;margin-bottom:18px;overflow-x:auto;padding-bottom:2px;gap:0}
+.step-item{display:flex;align-items:center}
+.step-dot{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--border-strong);background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:var(--text-3);flex-shrink:0;cursor:pointer;transition:all .15s}
+.step-dot.done{background:var(--success);border-color:var(--success);color:#fff}
+.step-dot.cur{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 0 0 3px var(--accent-bg)}
+.step-lbl{font-size:9px;color:var(--text-3);white-space:nowrap;margin:0 5px}
+.step-lbl.cur{color:var(--text);font-weight:600}
+.step-line{height:1.5px;width:20px;background:var(--border-strong);flex-shrink:0}
+.step-line.done{background:var(--success)}
+
+/* Grid layouts */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+
+/* Metric cards */
+.metric-card{background:var(--surface-2);border:0.5px solid var(--border);border-radius:8px;padding:12px 14px}
+.metric-lbl{font-size:9px;font-weight:600;color:var(--text-3);letter-spacing:.05em;text-transform:uppercase;margin-bottom:4px}
+.metric-val{font-size:24px;font-weight:700;letter-spacing:-.03em;line-height:1}
+.metric-sub{font-size:10px;color:var(--text-3);margin-top:3px}
+
+/* Timeline */
+.timeline{padding:4px 0}
+.tl-item{display:flex;gap:12px;margin-bottom:12px;position:relative}
+.tl-item:last-child{margin-bottom:0}
+.tl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.tl-line{position:absolute;left:3.5px;top:12px;bottom:-12px;width:1px;background:var(--border)}
+.tl-item:last-child .tl-line{display:none}
+.tl-body{flex:1}
+.tl-label{font-size:12px;font-weight:500;color:var(--text)}
+.tl-time{font-size:10px;color:var(--text-3);margin-top:2px}
+
+/* Reagent table */
+.rtable{width:100%;border-collapse:collapse;font-size:11px}
+.rtable th{font-size:9px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.04em;padding:5px 7px;text-align:left;border-bottom:0.5px solid var(--border)}
+.rtable td{padding:5px 7px;border-bottom:0.5px solid var(--border);vertical-align:middle}
+.rtable tr:last-child td{border-bottom:none}
+.rtable input{font-size:10px;padding:4px 6px}
+
+/* Manifest table */
+.mtable{width:100%;border-collapse:collapse;font-size:11px}
+.mtable th{font-size:9px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.04em;padding:7px 10px;text-align:left;background:var(--surface-2);border-bottom:0.5px solid var(--border)}
+.mtable td{padding:8px 10px;border-bottom:0.5px solid var(--border);color:var(--text);vertical-align:middle}
+.mtable tr:last-child td{border-bottom:none}
+.mtable tr:hover td{background:var(--surface-2)}
+.mf-mono{font-family:var(--mono);font-size:10px;color:var(--text-2)}
+.type-pill{font-size:9px;font-weight:600;padding:2px 7px;border-radius:4px}
+.tp-plasma{background:var(--purple-bg);color:var(--purple-text)}
+.tp-pbmc{background:var(--accent-bg);color:var(--accent-text)}
+.tp-filter{background:var(--success-bg);color:var(--success-text)}
+.tp-frozen{background:#EBF5FB;color:#1A5276}
+.tp-chill{background:var(--success-bg);color:var(--success-text)}
+
+/* CTC link */
+.ctc-link{background:var(--success-bg);border:0.5px solid #9FD5C4;border-radius:var(--radius-sm);padding:9px 13px;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.ctc-link-txt{font-size:11px;color:var(--success-text);font-weight:500}
+.ctc-link-id{font-size:10px;font-weight:600;color:var(--success-text);font-family:var(--mono)}
+
+/* Demo banner */
+.demo-banner{background:linear-gradient(90deg,#4C1D95 0%,#1A56DB 100%);padding:10px 26px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;min-height:0}
+.demo-banner-txt{font-size:12px;font-weight:500;color:#fff}
+.demo-banner-step{font-size:11px;color:rgba(255,255,255,.7)}
+.demo-progress{height:2px;background:rgba(255,255,255,.2);position:relative;overflow:hidden}
+.demo-progress-bar{height:100%;background:#fff;transition:width .4s ease}
+
+/* Output summary */
+.out-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.out-card{background:var(--surface-2);border:0.5px solid var(--border);border-radius:8px;padding:11px 13px}
+.out-lbl{font-size:9px;font-weight:600;color:var(--text-3);letter-spacing:.05em;text-transform:uppercase;margin-bottom:4px}
+.out-val{font-size:22px;font-weight:700;letter-spacing:-.03em;color:var(--accent)}
+.out-val.g{color:var(--success)}
+.out-sub{font-size:9px;color:var(--text-3);margin-top:2px}
+
+/* Toast */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--text);color:#fff;font-size:12px;font-weight:500;padding:10px 16px;border-radius:var(--radius);box-shadow:0 4px 20px rgba(0,0,0,.2);display:flex;align-items:center;gap:7px;z-index:9999;animation:tIn .22s ease;max-width:300px}
+.toast.success{background:var(--success)}
+.toast.warn{background:var(--warning)}
+@keyframes tIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* Dashboard view */
+.dash-container{max-width:860px}
+.dash-kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.kpi-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px}
+.kpi-lbl{font-size:10px;font-weight:600;color:var(--text-3);letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px}
+.kpi-val{font-size:32px;font-weight:700;letter-spacing:-.04em;line-height:1}
+.kpi-val.a{color:var(--accent)}.kpi-val.s{color:var(--success)}.kpi-val.w{color:var(--warning)}.kpi-val.d{color:var(--danger)}
+.kpi-trend{font-size:10px;color:var(--text-3);margin-top:4px}
+.section-head{font-size:13px;font-weight:600;color:var(--text);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.activity-item{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:0.5px solid var(--border)}
+.activity-item:last-child{border-bottom:none}
+.activity-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.activity-dot.s{background:var(--success)}.activity-dot.a{background:var(--accent)}.activity-dot.w{background:var(--warning)}.activity-dot.d{background:var(--danger)}.activity-dot.p{background:var(--purple)}
+.activity-main{font-size:12px;color:var(--text);flex:1}
+.activity-time{font-size:10px;color:var(--text-3);margin-top:1px}
+
+/* Session grid */
+.session-container{max-width:940px}
+
+/* Responsive */
+@media(max-width:800px){.sidebar{display:none}.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+<!-- ═══ SIDEBAR ═══ -->
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="logo-row">
+      <div class="logo-mark">
+        <svg viewBox="0 0 14 14" fill="none"><path d="M7 1L13 4.5V9.5L7 13L1 9.5V4.5L7 1Z" stroke="white" stroke-width="1.3" stroke-linejoin="round"/><circle cx="7" cy="7" r="2" fill="white"/></svg>
+      </div>
+      <div>
+        <div class="logo-name">PAX-PLUS Tracker</div>
+      </div>
+    </div>
+    <div class="logo-sub">QIMR Berghofer × Apollo HealthAxis</div>
+    <div class="site-switcher">
+      <div class="site-btn active" onclick="switchSite(this,'201')">Hyd</div>
+      <div class="site-btn" onclick="switchSite(this,'202')">Chen</div>
+      <div class="site-btn" onclick="switchSite(this,'203')">Del</div>
+      <div class="site-btn" onclick="switchSite(this,'204')">Bang</div>
+    </div>
+  </div>
+
+  <div class="sidebar-scroll">
+    <div style="padding:12px 14px 10px">
+      <div class="stat-strip" style="padding:0 0 0">
+        <div class="stat-card"><div class="stat-num a" id="sb-active">1</div><div class="stat-lbl">Active</div></div>
+        <div class="stat-card"><div class="stat-num s" id="sb-stored">4</div><div class="stat-lbl">Stored</div></div>
+        <div class="stat-card"><div class="stat-num w" id="sb-due">2</div><div class="stat-lbl">Ship due</div></div>
+      </div>
+    </div>
+
+    <div class="section-label">Patient sessions · Site <span id="sb-site-label">201</span></div>
+
+    <div id="session-list">
+      <!-- Pre-seeded cards -->
+      <div class="sc" onclick="openStoredCard(this,'201-003','C3D1','stored',3,8,2,'25 Sep','3 days')">
+        <div class="sc-top"><span class="sc-pid">201-003</span><span class="sc-cyc">C3D1</span></div>
+        <div class="sc-status stored"><span class="dot"></span>Stored</div>
+        <div class="sc-meta"><span class="sc-mi">Plasma ×3</span><span class="sc-mi">PBMCs ×8</span><span class="sc-mi">Filters ×2</span></div>
+        <div class="sc-deadline">⚡ Ship by 25 Sep — 3 days</div>
+      </div>
+      <div class="sc" onclick="openStoredCard(this,'201-007','C1D1','stored',3,5,2,'26 Sep','4 days')">
+        <div class="sc-top"><span class="sc-pid">201-007</span><span class="sc-cyc">C1D1</span></div>
+        <div class="sc-status stored"><span class="dot"></span>Stored</div>
+        <div class="sc-meta"><span class="sc-mi">Plasma ×3</span><span class="sc-mi">PBMCs ×5</span><span class="sc-mi">Filters ×2</span></div>
+        <div class="sc-deadline">Ship by 26 Sep — 4 days</div>
+      </div>
+      <div class="sc" onclick="openStoredCard(this,'201-012','C2D1','overdue',3,6,2,'21 Sep','Overdue')">
+        <div class="sc-top"><span class="sc-pid">201-012</span><span class="sc-cyc">C2D1</span></div>
+        <div class="sc-status overdue"><span class="dot"></span>Shipment overdue</div>
+        <div class="sc-meta"><span class="sc-mi">Plasma ×3</span><span class="sc-mi">PBMCs ×6</span><span class="sc-mi">Filters ×2</span></div>
+        <div class="sc-overdue">⚠ Was due 21 Sep — action required</div>
+      </div>
+      <div class="sc" onclick="openStoredCard(this,'201-011','C2D1','shipped',3,6,2,null,null)">
+        <div class="sc-top"><span class="sc-pid">201-011</span><span class="sc-cyc">C2D1</span></div>
+        <div class="sc-status shipped"><span class="dot"></span>Shipped</div>
+        <div class="sc-meta"><span class="sc-mi">Plasma ×3</span><span class="sc-mi">PBMCs ×6</span><span class="sc-mi">Filters ×2</span></div>
+        <div style="font-size:9px;color:var(--text-3);margin-top:4px">AWB: SQ-4872-HYD</div>
+      </div>
+      <div class="sc" onclick="openStoredCard(this,'201-008','C4D1','received',3,7,2,null,null)">
+        <div class="sc-top"><span class="sc-pid">201-008</span><span class="sc-cyc">C4D1</span></div>
+        <div class="sc-status received"><span class="dot"></span>Received at QIMR</div>
+        <div class="sc-meta"><span class="sc-mi">Plasma ×3</span><span class="sc-mi">PBMCs ×7</span><span class="sc-mi">Filters ×2</span></div>
+      </div>
+      <!-- Active session (injected) -->
+      <div id="active-card" class="sc" style="display:none" onclick="showView('session')">
+        <div class="sc-top"><span class="sc-pid" id="ac-pid">—</span><span class="sc-cyc" id="ac-cyc">—</span></div>
+        <div class="sc-status processing"><span class="dot"></span>Processing now</div>
+        <div class="sc-meta"><span class="sc-mi" id="ac-started">—</span></div>
+      </div>
+    </div>
+
+    <div style="padding:10px 10px 0">
+      <button class="btn primary" style="width:100%;justify-content:center" onclick="showView('welcome')">
+        <svg viewBox="0 0 13 13" fill="none"><path d="M6.5 1v11M1 6.5h11" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
+        New processing session
+      </button>
+      <button class="btn" style="width:100%;justify-content:center;margin-top:6px" onclick="showView('dashboard')">
+        <svg viewBox="0 0 13 13" fill="none"><rect x="1" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="7" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="1" y="7" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="7" y="7" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/></svg>
+        Central dashboard
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MAIN ═══ -->
+<div class="main">
+
+  <!-- Demo banner -->
+  <div class="demo-banner" id="demo-banner" style="display:none">
+    <div>
+      <div class="demo-banner-txt">🎬 Demo mode running — <span id="demo-step-lbl">Step 1 of 9</span></div>
+      <div class="demo-banner-step" id="demo-step-desc">Starting session…</div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button class="btn" style="font-size:11px;padding:5px 10px;color:#fff;border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.1)" onclick="stopDemo()">Stop demo</button>
+    </div>
+  </div>
+  <div class="demo-progress" id="demo-progress" style="display:none"><div class="demo-progress-bar" id="demo-bar" style="width:0%"></div></div>
+
+  <!-- ── Welcome ── -->
+  <div id="view-welcome" class="view active main-scroll">
+    <div class="welcome-wrap">
+      <div class="welcome-card">
+        <div class="welcome-icon">
+          <svg viewBox="0 0 26 26" fill="none"><path d="M3 6h20M3 13h20M3 20h20" stroke="white" stroke-width="2" stroke-linecap="round"/><rect x="8" y="3" width="3" height="6" rx="1" fill="white"/><rect x="15" y="10" width="3" height="6" rx="1" fill="white"/><rect x="8" y="17" width="3" height="6" rx="1" fill="white"/></svg>
+        </div>
+        <div class="welcome-title">New processing session</div>
+        <div class="welcome-desc">Scan the patient barcode to begin. Patient details, site, cycle and run ID populate automatically.</div>
+
+        <div class="scan-area">
+          <div class="scan-lbl">Scan patient barcode</div>
+          <div class="barcode-svg" id="barcode-vis"></div>
+          <div class="scan-row">
+            <input type="text" id="barcode-in" class="f-scan" placeholder="201-001  or scan barcode…" maxlength="20">
+            <button class="btn primary" onclick="doScan()">Scan</button>
+          </div>
+          <div class="scan-hint">Demo values: 201-001 · 201-002 · 201-004</div>
+        </div>
+
+        <div class="row">
+          <label>Cycle / Day</label>
+          <select id="cycle-sel">
+            <option value="C1D1">C1D1 — Cycle 1, Day 1</option>
+            <option value="C2D1">C2D1</option><option value="C3D1">C3D1</option>
+            <option value="C4D1">C4D1</option><option value="C5D1">C5D1</option>
+            <option value="C7D1">C7D1</option><option value="C9D1">C9D1</option>
+            <option value="C11D1">C11D1</option><option value="C13D1">C13D1</option>
+            <option value="C15D1">C15D1</option><option value="C17D1">C17D1</option>
+            <option value="EOT">End of treatment / early termination</option>
+          </select>
+        </div>
+
+        <div style="display:flex;gap:8px">
+          <button class="btn primary" style="flex:1;justify-content:center;padding:10px" onclick="startSession()" id="start-btn" disabled>Start session</button>
+          <button class="btn demo-btn" style="justify-content:center;padding:10px 16px" onclick="runDemo()">
+            <svg viewBox="0 0 13 13" fill="none" width="13" height="13"><polygon points="2,1 12,6.5 2,12" fill="white"/></svg>
+            Run demo
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Session ── -->
+  <div id="view-session" class="view">
+    <div class="main-header">
+      <div>
+        <div class="main-title" id="sess-title">Processing session</div>
+        <div class="main-sub" id="sess-sub">WS-I-003A · WS-I-003B · Apollo Hyderabad</div>
+      </div>
+      <div class="h-actions">
+        <button class="btn" onclick="showView('welcome')">← Back</button>
+        <button class="btn success-btn" onclick="completeSession()">
+          <svg viewBox="0 0 13 13" fill="none"><path d="M2 6.5l3.5 3.5 5.5-5.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Complete session
+        </button>
+      </div>
+    </div>
+    <div class="main-scroll" id="sess-scroll">
+      <div class="session-container">
+
+        <!-- Steps -->
+        <div class="steps">
+          <div class="step-item"><div class="step-dot cur" id="sd1" onclick="scrollTo('s1')">1</div><div class="step-lbl cur" id="sl1">Identification</div></div>
+          <div class="step-line" id="sln1"></div>
+          <div class="step-item"><div class="step-dot" id="sd2" onclick="scrollTo('s2')">2</div><div class="step-lbl" id="sl2">Tubes</div></div>
+          <div class="step-line" id="sln2"></div>
+          <div class="step-item"><div class="step-dot" id="sd3" onclick="scrollTo('s3')">3</div><div class="step-lbl" id="sl3">Reagents</div></div>
+          <div class="step-line" id="sln3"></div>
+          <div class="step-item"><div class="step-dot" id="sd4" onclick="scrollTo('s4')">4</div><div class="step-lbl" id="sl4">Plasma</div></div>
+          <div class="step-line" id="sln4"></div>
+          <div class="step-item"><div class="step-dot" id="sd5" onclick="scrollTo('s5')">5</div><div class="step-lbl" id="sl5">PBMCs</div></div>
+          <div class="step-line" id="sln5"></div>
+          <div class="step-item"><div class="step-dot" id="sd6" onclick="scrollTo('s6')">6</div><div class="step-lbl" id="sl6">Cryo</div></div>
+          <div class="step-line" id="sln6"></div>
+          <div class="step-item"><div class="step-dot" id="sd7" onclick="scrollTo('s7')">7</div><div class="step-lbl" id="sl7">CTC 003B</div></div>
+          <div class="step-line" id="sln7"></div>
+          <div class="step-item"><div class="step-dot" id="sd8" onclick="scrollTo('s8')">8</div><div class="step-lbl" id="sl8">Outputs</div></div>
+        </div>
+
+        <!-- S1: Identification -->
+        <div id="s1" class="grid2" style="margin-bottom:16px">
+          <div class="form-card" style="margin-bottom:0">
+            <div class="fc-header"><div class="fc-title">Sample &amp; site identification</div><span class="fc-badge b-003a">WS-003A</span></div>
+            <div class="fc-body">
+              <div class="row2">
+                <div><label>Patient ID</label><input id="f-pid" class="f-scan" readonly></div>
+                <div><label>Cycle / Day</label><input id="f-cyc" class="f-scan" readonly></div>
+              </div>
+              <div class="row"><label>Hospital site</label><input id="f-site" class="f-scan" readonly></div>
+              <div class="row"><label>Run ID (auto-generated)</label><input id="f-runid" class="f-calc" readonly></div>
+              <div class="row2">
+                <div><label>Collection date</label><input type="date" id="f-cdate"></div>
+                <div><label>Collection time</label><input type="time" id="f-ctime"></div>
+              </div>
+              <div class="row2">
+                <div><label>Processing started</label><input id="f-ts-start" class="f-auto" readonly></div>
+                <div><label>Processing technician</label><input type="text" id="f-tech" placeholder="Initials / name"></div>
+              </div>
+            </div>
+          </div>
+          <div class="form-card" style="margin-bottom:0">
+            <div class="fc-header"><div class="fc-title">Buffer preparation</div><span class="fc-badge b-003a">WS-003A §4</span></div>
+            <div class="fc-body">
+              <div class="ck-row"><span class="ck-lbl">PBS/10% FBS buffer prepared (3×50mL)</span><div class="yn"><button class="yn-b yes" onclick="yn(this,'buf-pbs')">Y</button><button class="yn-b no" onclick="yn(this,'buf-pbs')">N</button></div></div>
+              <div id="dev-buf-pbs"></div>
+              <div class="ck-row"><span class="ck-lbl">Resuspension buffer prepared, kept chilled</span><div class="yn"><button class="yn-b yes" onclick="yn(this,'buf-res')">Y</button><button class="yn-b no" onclick="yn(this,'buf-res')">N</button></div></div>
+              <div id="dev-buf-res"></div>
+              <div class="ck-row"><span class="ck-lbl">2× Cryo buffer prepared, kept chilled</span><div class="yn"><button class="yn-b yes" onclick="yn(this,'buf-cry')">Y</button><button class="yn-b no" onclick="yn(this,'buf-cry')">N</button></div></div>
+              <div id="dev-buf-cry"></div>
+              <div class="ck-row"><span class="ck-lbl">Mr Frosty confirmed chilled in fridge</span><div class="yn"><button class="yn-b yes" onclick="yn(this,'buf-mrf')">Y</button><button class="yn-b no" onclick="yn(this,'buf-mrf')">N</button></div></div>
+              <div id="dev-buf-mrf"></div>
+              <div class="ck-row"><span class="ck-lbl">RBC lysis buffer equilibrated to 25°C</span><div class="yn"><button class="yn-b yes" onclick="yn(this,'buf-rbc')">Y</button><button class="yn-b no" onclick="yn(this,'buf-rbc')">N</button></div></div>
+              <div id="dev-buf-rbc"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- S2: Tubes -->
+        <div id="s2" class="form-card">
+          <div class="fc-header"><div class="fc-title">Blood tube tracking</div><span class="fc-badge b-003a">WS-003A §2</span></div>
+          <div class="fc-body">
+            <div class="tube-grid">
+              <div class="tube-wrap">
+                <div class="tube-num">Tube 1</div>
+                <div class="tube-vis tube-default" id="tv1"><div class="tube-lbl">1</div></div>
+                <select class="tube-select" style="width:100%;font-size:9px;padding:3px 4px" onchange="tubeChange(1,this.value)"><option value="">Check</option><option value="clear">Clear</option><option value="clotted">Clotted</option><option value="haem">Haem.</option><option value="leak">Leaking</option><option value="under">Underfill</option></select>
+              </div>
+              <div class="tube-wrap">
+                <div class="tube-num">Tube 2</div>
+                <div class="tube-vis tube-reserved"><div class="tube-lbl">→003B</div></div>
+                <div class="tube-res-lbl">Reserved CTC</div>
+              </div>
+              <div class="tube-wrap">
+                <div class="tube-num">Tube 3</div>
+                <div class="tube-vis tube-default" id="tv3"><div class="tube-lbl">3</div></div>
+                <select style="width:100%;font-size:9px;padding:3px 4px" onchange="tubeChange(3,this.value)"><option value="">Check</option><option value="clear">Clear</option><option value="clotted">Clotted</option><option value="haem">Haem.</option><option value="leak">Leaking</option><option value="under">Underfill</option></select>
+              </div>
+              <div class="tube-wrap">
+                <div class="tube-num">Tube 4</div>
+                <div class="tube-vis tube-default" id="tv4"><div class="tube-lbl">4</div></div>
+                <select style="width:100%;font-size:9px;padding:3px 4px" onchange="tubeChange(4,this.value)"><option value="">Check</option><option value="clear">Clear</option><option value="clotted">Clotted</option><option value="haem">Haem.</option><option value="leak">Leaking</option><option value="under">Underfill</option></select>
+              </div>
+              <div class="tube-wrap">
+                <div class="tube-num">Tube 5</div>
+                <div class="tube-vis tube-default" id="tv5"><div class="tube-lbl">5</div></div>
+                <select style="width:100%;font-size:9px;padding:3px 4px" onchange="tubeChange(5,this.value)"><option value="">Check</option><option value="clear">Clear</option><option value="clotted">Clotted</option><option value="haem">Haem.</option><option value="leak">Leaking</option><option value="under">Underfill</option></select>
+              </div>
+            </div>
+            <div class="row"><label>Total pooled blood volume — tubes 1,3,4,5 (mL)</label><input type="number" id="f-bvol" placeholder="e.g. 30" min="0" max="40" step="0.5"></div>
+          </div>
+        </div>
+
+        <!-- S3: Reagents -->
+        <div id="s3" class="form-card">
+          <div class="fc-header"><div class="fc-title">Reagent &amp; consumable lot tracking</div><span class="fc-badge b-003a">WS-003A §3</span></div>
+          <div class="fc-body" style="padding:0 18px 14px">
+            <table class="rtable">
+              <thead><tr><th>Item</th><th>Lot / batch no.</th><th>Expiry date</th></tr></thead>
+              <tbody>
+                <tr><td style="color:var(--text-2)">Lymphoprep</td><td><input type="text" id="rl-lymph" placeholder="e.g. LN240901"></td><td><input type="date" id="re-lymph"></td></tr>
+                <tr><td style="color:var(--text-2)">SepMate IVD-50 (×2)</td><td><input type="text" id="rl-sep" placeholder="e.g. SM241001"></td><td><input type="date" id="re-sep"></td></tr>
+                <tr><td style="color:var(--text-2)">Dulbecco's PBS</td><td><input type="text" id="rl-pbs" placeholder="e.g. PB240715"></td><td><input type="date" id="re-pbs"></td></tr>
+                <tr><td style="color:var(--text-2)">FBS aliquot</td><td><input type="text" id="rl-fbs" placeholder="e.g. FBS2401"></td><td><input type="date" id="re-fbs"></td></tr>
+                <tr><td style="color:var(--text-2)">RPMI-1640</td><td><input type="text" id="rl-rpm" placeholder="e.g. RP240801"></td><td><input type="date" id="re-rpm"></td></tr>
+                <tr><td style="color:var(--text-2)">RBC Lysis Buffer</td><td><input type="text" id="rl-rbc" placeholder="e.g. RBC2409"></td><td><input type="date" id="re-rbc"></td></tr>
+                <tr><td style="color:var(--text-2)">Trypan Blue</td><td><input type="text" id="rl-try" placeholder="e.g. TB240601"></td><td><input type="date" id="re-try"></td></tr>
+                <tr><td style="color:var(--text-2)">DMSO (sterile)</td><td><input type="text" id="rl-dms" placeholder="e.g. DM240901"></td><td><input type="date" id="re-dms"></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- S4: Plasma + SepMate -->
+        <div id="s4" class="grid2" style="margin-bottom:16px">
+          <div class="form-card" style="margin-bottom:0">
+            <div class="fc-header"><div class="fc-title">Plasma isolation</div><span class="fc-badge b-003a">WS-003A §5</span></div>
+            <div class="fc-body">
+              <div class="ck-row"><span class="ck-lbl">Spin 1 confirmed — 1200×g, 10 min, brake ON</span><div class="yn"><button class="yn-b yes" onclick="yn(this,'sp1')">Y</button><button class="yn-b no" onclick="yn(this,'sp1')">N</button></div></div>
+              <div id="dev-sp1"></div>
+              <div class="ck-row"><span class="ck-lbl">Buffy coat disturbed during aliquoting?</span><div class="yn"><button class="yn-b yes" onclick="yn(this,'buffy')">Y</button><button class="yn-b no" onclick="yn(this,'buffy')">N</button></div></div>
+              <div id="dev-buffy"></div>
+              <div class="row" style="margin-top:10px"><label>No. of plasma aliquots taken (target 3)</label><input type="number" id="f-plasma-n" value="3" min="1" max="3" onchange="document.getElementById('out-plasma').textContent=this.value"></div>
+              <div class="row">
+                <label>Time plasma placed at −80°C</label>
+                <input id="f-ts-plasma" class="f-auto" readonly>
+                <button class="btn" style="margin-top:5px;width:100%;justify-content:center;font-size:11px" onclick="stamp('f-ts-plasma','Plasma storage logged')">Log plasma stored</button>
+              </div>
+              <div class="row"><label>Freezer ID / storage box — plasma</label><input type="text" id="f-plasma-fz" placeholder="e.g. FZ-01 / Box 12A"></div>
+            </div>
+          </div>
+          <div class="form-card" style="margin-bottom:0">
+            <div class="fc-header"><div class="fc-title">SepMate processing</div><span class="fc-badge b-003a">WS-003A §6</span></div>
+            <div class="fc-body">
+              <div class="row2">
+                <div><label>Tube A diluted blood (mL)</label><input type="number" placeholder="mL" min="0" max="17"></div>
+                <div><label>Tube B diluted blood (mL)</label><input type="number" placeholder="mL" min="0" max="17"></div>
+              </div>
+              <div class="ck-row"><span class="ck-lbl">Spin 2 — 1200×g, 10 min, brakes OFF</span><div class="yn"><button class="yn-b yes" onclick="yn(this,'sp2')">Y</button><button class="yn-b no" onclick="yn(this,'sp2')">N</button></div></div>
+              <div id="dev-sp2"></div>
+              <div class="ck-row"><span class="ck-lbl">Buffy coat visible in both tubes?</span><div class="yn"><button class="yn-b yes" onclick="yn(this,'buffy2')">Y</button><button class="yn-b no" onclick="yn(this,'buffy2')">N</button></div></div>
+              <div id="dev-buffy2"></div>
+              <div class="ck-row"><span class="ck-lbl">Wash spin — 300×g, 10 min, brakes OFF</span><div class="yn"><button class="yn-b yes" onclick="yn(this,'spw')">Y</button><button class="yn-b no" onclick="yn(this,'spw')">N</button></div></div>
+              <div id="dev-spw"></div>
+              <div class="ck-row"><span class="ck-lbl">Post-lysis spin — 250×g, 10 min, brakes ON</span><div class="yn"><button class="yn-b yes" onclick="yn(this,'spp')">Y</button><button class="yn-b no" onclick="yn(this,'spp')">N</button></div></div>
+              <div id="dev-spp"></div>
+              <div class="row" style="margin-top:8px"><label>RBC lysis incubation time (max 10 min)</label><input type="number" id="f-lysis" placeholder="mins" min="0" max="20" onchange="checkLysis(this.value)"><div id="dev-lysis"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- S5: PBMC counting -->
+        <div id="s5" class="grid2" style="margin-bottom:16px">
+          <div class="form-card" style="margin-bottom:0">
+            <div class="fc-header"><div class="fc-title">PBMC counting — haemocytometer</div><span class="fc-badge b-003a">WS-003A §7</span></div>
+            <div class="fc-body">
+              <div style="font-size:10px;color:var(--text-3);margin-bottom:8px">Enter count from each of 4 squares — concentration calculates automatically</div>
+              <div class="haemo-grid">
+                <div class="haemo-cell"><label>Square 1</label><input type="number" id="h1" placeholder="0" min="0" onchange="calcPBMC()"></div>
+                <div class="haemo-cell"><label>Square 2</label><input type="number" id="h2" placeholder="0" min="0" onchange="calcPBMC()"></div>
+                <div class="haemo-cell"><label>Square 3</label><input type="number" id="h3" placeholder="0" min="0" onchange="calcPBMC()"></div>
+                <div class="haemo-cell"><label>Square 4</label><input type="number" id="h4" placeholder="0" min="0" onchange="calcPBMC()"></div>
+              </div>
+              <div class="calc-result" id="calc-result" style="display:none">
+                <div class="calc-row"><span class="calc-lbl">Concentration</span><span class="calc-val" id="cc-conc">—</span></div>
+                <div class="calc-row"><span class="calc-lbl">Total PBMC count</span><span class="calc-val" id="cc-total">—</span></div>
+                <div class="calc-row"><span class="calc-lbl">Recommended vials</span><span class="calc-val calc-big" id="cc-vials">—</span></div>
+              </div>
+              <div id="calc-low"></div>
+            </div>
+          </div>
+
+          <!-- S6: Cryo -->
+          <div id="s6" class="form-card" style="margin-bottom:0">
+            <div class="fc-header"><div class="fc-title">Cryopreservation</div><span class="fc-badge b-003a">WS-003A §8</span></div>
+            <div class="fc-body">
+              <div class="row"><label>No. of cryovials (from count above)</label><input id="f-vials" class="f-calc" readonly placeholder="Auto-filled"></div>
+              <div class="row2">
+                <div><label>Resuspension buffer (mL)</label><input id="f-res-v" class="f-calc" readonly placeholder="Auto"></div>
+                <div><label>2× Cryo buffer (mL)</label><input id="f-cry-v" class="f-calc" readonly placeholder="Auto"></div>
+              </div>
+              <div class="row"><label>Final concentration per vial</label><input id="f-conc-v" class="f-calc" readonly placeholder="Auto"></div>
+              <div class="row">
+                <label>Time placed in Mr Frosty at −80°C</label>
+                <input id="f-ts-cryo" class="f-auto" readonly>
+                <button class="btn" style="margin-top:5px;width:100%;justify-content:center;font-size:11px" onclick="stamp('f-ts-cryo','PBMC cryovials logged')">Log cryovials stored</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- S7: CTC WS-003B -->
+        <div id="s7" class="form-card">
+          <div class="fc-header"><div class="fc-title">CTC isolation onto filters</div><span class="fc-badge b-003b">WS-003B</span></div>
+          <div class="fc-body">
+            <div class="ctc-link">
+              <span class="ctc-link-txt">Linked session — Patient ID, Site, Run ID carried from WS-003A</span>
+              <span class="ctc-link-id" id="ctc-runid">—</span>
+            </div>
+            <div class="grid2" style="gap:14px">
+              <div>
+                <div style="font-size:11px;font-weight:600;color:var(--text-2);margin-bottom:9px">FC2 buffer preparation</div>
+                <div class="row2">
+                  <div>
+                    <label>Final FC2 pH (must be 6.7–7.3)</label>
+                    <input type="number" id="f-ph" placeholder="e.g. 7.1" min="5" max="9" step="0.1" onchange="checkPH(this.value)" style="font-family:var(--mono)">
+                    <div id="dev-ph"></div>
+                  </div>
+                  <div>
+                    <label>Total NaOH used (µL)</label>
+                    <input type="number" id="f-naoh" placeholder="µL" min="0" max="20" onchange="checkNaOH(this.value)">
+                    <div id="dev-naoh"></div>
+                  </div>
+                </div>
+                <div class="ck-row"><span class="ck-lbl">Blood+FC2 incubation per SOP (8 min)?</span><div class="yn"><button class="yn-b yes" onclick="yn(this,'inc')">Y</button><button class="yn-b no" onclick="yn(this,'inc')">N</button></div></div>
+                <div id="dev-inc"></div>
+              </div>
+              <div>
+                <div style="font-size:11px;font-weight:600;color:var(--text-2);margin-bottom:9px">ScreenCell filtration</div>
+                <div class="row2" style="margin-bottom:8px">
+                  <div><label>Device 1 — 7mL loaded?</label><div class="yn" style="margin-top:4px"><button class="yn-b yes" onclick="yn(this,'d1')">Y</button><button class="yn-b no" onclick="yn(this,'d1')">N</button></div></div>
+                  <div><label>Device 2 — 7mL loaded?</label><div class="yn" style="margin-top:4px"><button class="yn-b yes" onclick="yn(this,'d2')">Y</button><button class="yn-b no" onclick="yn(this,'d2')">N</button></div></div>
+                </div>
+                <div class="ck-row"><span class="ck-lbl">PBS washes 2×800µL per SOP?</span><div class="yn"><button class="yn-b yes" onclick="yn(this,'pbs')">Y</button><button class="yn-b no" onclick="yn(this,'pbs')">N</button></div></div>
+                <div id="dev-pbs"></div>
+                <div class="ck-row"><span class="ck-lbl">Filtration issue observed?</span><div class="yn"><button class="yn-b yes" onclick="yn(this,'fi')">Y</button><button class="yn-b no" onclick="yn(this,'fi')">N</button></div></div>
+                <div id="dev-fi"></div>
+              </div>
+            </div>
+
+            <div style="font-size:11px;font-weight:600;color:var(--text-2);margin:12px 0 9px">Filter recovery &amp; drying</div>
+            <div class="grid2">
+              <div>
+                <div class="row"><label>Filter 1 — engraved ID</label><input type="text" id="f-f1id" placeholder="e.g. F-2024001" style="font-family:var(--mono)"></div>
+                <div class="row"><label>Filter 1 condition</label><select id="f-f1cond"><option value="intact">Intact</option><option value="curled">Curled</option><option value="torn">Torn</option><option value="folded">Folded</option></select></div>
+                <div class="row"><label>Storage box ID</label><input type="text" id="f-f1box" placeholder="e.g. FILT-BOX-01"></div>
+              </div>
+              <div>
+                <div class="row"><label>Filter 2 — engraved ID</label><input type="text" id="f-f2id" placeholder="e.g. F-2024002" style="font-family:var(--mono)"></div>
+                <div class="row"><label>Filter 2 condition</label><select id="f-f2cond"><option value="intact">Intact</option><option value="curled">Curled</option><option value="torn">Torn</option><option value="folded">Folded</option></select></div>
+                <div class="row"><label>Storage box ID</label><input type="text" id="f-f2box" placeholder="e.g. FILT-BOX-01"></div>
+              </div>
+            </div>
+            <div class="row3" style="margin-top:8px">
+              <div><label>Oven 37°C confirmed?</label><div class="yn" style="margin-top:4px"><button class="yn-b yes" onclick="yn(this,'oven')">Y</button><button class="yn-b no" onclick="yn(this,'oven')">N</button></div></div>
+              <div><label>Drying started</label><input id="f-ts-dry1" class="f-auto" readonly><button class="btn" style="margin-top:4px;width:100%;justify-content:center;font-size:10px;padding:5px" onclick="stamp('f-ts-dry1','Drying started')">Log start</button></div>
+              <div><label>Drying complete (target 1h)</label><input id="f-ts-dry2" class="f-auto" readonly><button class="btn" style="margin-top:4px;width:100%;justify-content:center;font-size:10px;padding:5px" onclick="stamp('f-ts-dry2','Drying complete')">Log end</button></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- S8: Outputs -->
+        <div id="s8" class="form-card">
+          <div class="fc-header"><div class="fc-title">Session outputs summary</div><span style="font-size:10px;color:var(--text-3)">Auto-populated from entries above</span></div>
+          <div class="fc-body">
+            <div class="out-grid">
+              <div class="out-card"><div class="out-lbl">Plasma vials</div><div class="out-val" id="out-plasma">3</div><div class="out-sub">stored at −80°C</div></div>
+              <div class="out-card"><div class="out-lbl">PBMC vials</div><div class="out-val" id="out-pbmc">—</div><div class="out-sub">stored at −80°C</div></div>
+              <div class="out-card"><div class="out-lbl">CTC filters</div><div class="out-val g" id="out-filters">2</div><div class="out-sub">stored at 4–8°C</div></div>
+            </div>
+            <div class="row2">
+              <div><label>Freezer ID — plasma &amp; PBMCs</label><input type="text" id="f-out-fz" placeholder="e.g. FZ-01"></div>
+              <div><label>Box ID</label><input type="text" id="f-out-bx" placeholder="e.g. Box 13A"></div>
+            </div>
+            <div class="row2">
+              <div><label>Processing technician signature</label><input type="text" id="f-sig-t" placeholder="Name or initials"></div>
+              <div><label>Reviewed by</label><input type="text" id="f-sig-r" placeholder="Coordinator name"></div>
+            </div>
+            <button class="btn success-btn" style="width:100%;justify-content:center;padding:11px;margin-top:8px" onclick="completeSession()">
+              <svg viewBox="0 0 13 13" fill="none" width="13" height="13"><path d="M2 6.5l3.5 3.5 5.5-5.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Complete &amp; sign off session
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Card detail ── -->
+  <div id="view-card" class="view">
+    <div class="main-header">
+      <div>
+        <div class="main-title" id="card-title">Sample record</div>
+        <div class="main-sub" id="card-sub">Apollo Hyderabad — Site 201</div>
+      </div>
+      <div class="h-actions">
+        <button class="btn" onclick="showView('dashboard')">← Dashboard</button>
+        <button class="btn primary" onclick="showView('manifest')">Generate manifest</button>
+      </div>
+    </div>
+    <div class="main-scroll">
+      <div style="max-width:680px">
+        <div class="grid3" style="margin-bottom:16px">
+          <div class="metric-card"><div class="metric-lbl">Plasma vials</div><div class="metric-val" style="color:var(--accent)" id="card-plasma">3</div><div class="metric-sub">−80°C · FZ-01 / Box 12A</div></div>
+          <div class="metric-card"><div class="metric-lbl">PBMC vials</div><div class="metric-val" style="color:var(--accent)" id="card-pbmc">6</div><div class="metric-sub">−80°C · FZ-01 / Box 12A</div></div>
+          <div class="metric-card"><div class="metric-lbl">CTC filters</div><div class="metric-val" style="color:var(--success)" id="card-filters">2</div><div class="metric-sub">4–8°C · FILT-BOX-01</div></div>
+        </div>
+        <div class="form-card">
+          <div class="fc-header"><div class="fc-title">Sample record</div><div class="sc-status stored" style="margin:0" id="card-status-el"><span class="dot"></span><span id="card-status-txt">Stored</span></div></div>
+          <div class="fc-body">
+            <table style="width:100%;font-size:12px;border-collapse:collapse">
+              <tr style="border-bottom:0.5px solid var(--border)"><td style="padding:7px 0;color:var(--text-2);width:42%">Patient ID</td><td style="padding:7px 0;font-weight:600;font-family:var(--mono)" id="card-pid">—</td></tr>
+              <tr style="border-bottom:0.5px solid var(--border)"><td style="padding:7px 0;color:var(--text-2)">Cycle / Day</td><td style="padding:7px 0;font-weight:500" id="card-cyc">—</td></tr>
+              <tr style="border-bottom:0.5px solid var(--border)"><td style="padding:7px 0;color:var(--text-2)">Date stored</td><td style="padding:7px 0" id="card-date">22 Sep 2026</td></tr>
+              <tr style="border-bottom:0.5px solid var(--border)"><td style="padding:7px 0;color:var(--text-2)">Shipment deadline</td><td style="padding:7px 0;color:var(--warning);font-weight:500" id="card-deadline">—</td></tr>
+              <tr style="border-bottom:0.5px solid var(--border)"><td style="padding:7px 0;color:var(--text-2)">Run ID</td><td style="padding:7px 0;font-family:var(--mono);font-size:11px;color:var(--text-2)" id="card-runid">—</td></tr>
+              <tr><td style="padding:7px 0;color:var(--text-2)">Deviations</td><td style="padding:7px 0;color:var(--success);font-weight:500" id="card-devs">None logged</td></tr>
+            </table>
+            <div style="margin-top:14px">
+              <div style="font-size:11px;font-weight:600;color:var(--text-2);margin-bottom:8px">Processing timeline</div>
+              <div class="timeline" id="card-timeline"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Central Dashboard ── -->
+  <div id="view-dashboard" class="view">
+    <div class="main-header">
+      <div>
+        <div class="main-title">Central dashboard</div>
+        <div class="main-sub">All sites · PAX-PLUS trial · 22 Sep 2026</div>
+      </div>
+      <div class="h-actions">
+        <button class="btn primary" onclick="showView('manifest')">Generate weekly manifest</button>
+      </div>
+    </div>
+    <div class="main-scroll">
+      <div class="dash-container">
+        <div class="dash-kpi">
+          <div class="kpi-card"><div class="kpi-lbl">Total patients enrolled</div><div class="kpi-val a">24</div><div class="kpi-trend">Across 4 sites</div></div>
+          <div class="kpi-card"><div class="kpi-lbl">Samples stored this week</div><div class="kpi-val s">38</div><div class="kpi-trend">↑ 6 vs last week</div></div>
+          <div class="kpi-card"><div class="kpi-lbl">Pending shipment</div><div class="kpi-val w">7</div><div class="kpi-trend">2 overdue — action needed</div></div>
+          <div class="kpi-card"><div class="kpi-lbl">Received at QIMR</div><div class="kpi-val s">112</div><div class="kpi-trend">This trial to date</div></div>
+        </div>
+
+        <div class="grid2" style="margin-bottom:20px;align-items:start">
+          <div class="form-card" style="margin-bottom:0">
+            <div class="fc-header"><div class="fc-title">Sample status by site</div></div>
+            <div class="fc-body" style="padding:0 0 0">
+              <table style="width:100%;font-size:12px;border-collapse:collapse">
+                <thead><tr><th style="padding:8px 16px;text-align:left;font-size:10px;color:var(--text-3);font-weight:600;border-bottom:0.5px solid var(--border);letter-spacing:.04em;text-transform:uppercase">Site</th><th style="padding:8px;text-align:center;font-size:10px;color:var(--text-3);font-weight:600;border-bottom:0.5px solid var(--border)">Active</th><th style="padding:8px;text-align:center;font-size:10px;color:var(--text-3);font-weight:600;border-bottom:0.5px solid var(--border)">Stored</th><th style="padding:8px;text-align:center;font-size:10px;color:var(--text-3);font-weight:600;border-bottom:0.5px solid var(--border)">Ship due</th><th style="padding:8px;text-align:center;font-size:10px;color:var(--text-3);font-weight:600;border-bottom:0.5px solid var(--border)">Shipped</th><th style="padding:8px 16px;text-align:center;font-size:10px;color:var(--text-3);font-weight:600;border-bottom:0.5px solid var(--border)">Received</th></tr></thead>
+                <tbody>
+                  <tr style="border-bottom:0.5px solid var(--border)"><td style="padding:9px 16px;font-weight:500">201 — Hyderabad</td><td style="padding:9px 8px;text-align:center;color:var(--accent);font-weight:600">1</td><td style="padding:9px 8px;text-align:center;color:var(--success);font-weight:600">4</td><td style="padding:9px 8px;text-align:center;color:var(--warning);font-weight:600">2</td><td style="padding:9px 8px;text-align:center;color:var(--purple);font-weight:600">1</td><td style="padding:9px 16px;text-align:center;color:var(--success);font-weight:600">18</td></tr>
+                  <tr style="border-bottom:0.5px solid var(--border)"><td style="padding:9px 16px;font-weight:500">202 — Chennai</td><td style="padding:9px 8px;text-align:center;color:var(--accent);font-weight:600">0</td><td style="padding:9px 8px;text-align:center;color:var(--success);font-weight:600">3</td><td style="padding:9px 8px;text-align:center;color:var(--warning);font-weight:600">3</td><td style="padding:9px 8px;text-align:center;color:var(--purple);font-weight:600">2</td><td style="padding:9px 16px;text-align:center;color:var(--success);font-weight:600">29</td></tr>
+                  <tr style="border-bottom:0.5px solid var(--border)"><td style="padding:9px 16px;font-weight:500">203 — Delhi</td><td style="padding:9px 8px;text-align:center;color:var(--accent);font-weight:600">2</td><td style="padding:9px 8px;text-align:center;color:var(--success);font-weight:600">1</td><td style="padding:9px 8px;text-align:center;color:var(--warning);font-weight:600">1</td><td style="padding:9px 8px;text-align:center;color:var(--purple);font-weight:600">1</td><td style="padding:9px 16px;text-align:center;color:var(--success);font-weight:600">41</td></tr>
+                  <tr><td style="padding:9px 16px;font-weight:500">204 — Bangalore</td><td style="padding:9px 8px;text-align:center;color:var(--accent);font-weight:600">0</td><td style="padding:9px 8px;text-align:center;color:var(--success);font-weight:600">3</td><td style="padding:9px 8px;text-align:center;color:var(--warning);font-weight:600">1</td><td style="padding:9px 8px;text-align:center;color:var(--purple);font-weight:600">0</td><td style="padding:9px 16px;text-align:center;color:var(--success);font-weight:600">24</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="form-card" style="margin-bottom:0">
+            <div class="fc-header"><div class="fc-title">Activity feed</div><span style="font-size:10px;color:var(--text-3)">Live</span></div>
+            <div class="fc-body" id="activity-feed">
+              <div class="activity-item"><div class="activity-dot d"></div><div><div class="activity-main">201-012 C2D1 — shipment overdue, action required</div><div class="activity-time">22 Sep · 08:14</div></div></div>
+              <div class="activity-item"><div class="activity-dot s"></div><div><div class="activity-main">203-005 C1D1 — session complete, 3 plasma · 7 PBMCs · 2 filters stored</div><div class="activity-time">22 Sep · 07:51</div></div></div>
+              <div class="activity-item"><div class="activity-dot p"></div><div><div class="activity-main">201-011 C2D1 — shipment dispatched · AWB SQ-4872-HYD</div><div class="activity-time">21 Sep · 16:30</div></div></div>
+              <div class="activity-item"><div class="activity-dot s"></div><div><div class="activity-main">202-009 C3D1 — received at QIMR, all samples intact</div><div class="activity-time">20 Sep · 11:05</div></div></div>
+              <div class="activity-item"><div class="activity-dot a"></div><div><div class="activity-main">204-002 C5D1 — processing session started</div><div class="activity-time">20 Sep · 09:22</div></div></div>
+              <div class="activity-item"><div class="activity-dot s"></div><div><div class="activity-main">201-008 C4D1 — received at QIMR, cold chain intact</div><div class="activity-time">19 Sep · 14:17</div></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <div class="fc-header"><div class="fc-title">Samples due for shipment this week</div><button class="btn primary" style="font-size:11px;padding:5px 11px" onclick="showView('manifest')">Generate manifest</button></div>
+          <div class="fc-body" style="padding:0">
+            <table class="mtable">
+              <thead><tr><th>Patient</th><th>Cycle</th><th>Site</th><th>Date stored</th><th>Deadline</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td class="mf-mono">201-003</td><td>C3D1</td><td>Hyderabad</td><td class="mf-mono">19 Sep</td><td style="color:var(--warning);font-weight:500;font-size:11px">25 Sep — 3 days</td><td><div class="sc-status stored" style="margin:0;display:inline-flex"><span class="dot"></span>Stored</div></td></tr>
+                <tr><td class="mf-mono">201-007</td><td>C1D1</td><td>Hyderabad</td><td class="mf-mono">20 Sep</td><td style="color:var(--warning);font-weight:500;font-size:11px">26 Sep — 4 days</td><td><div class="sc-status stored" style="margin:0;display:inline-flex"><span class="dot"></span>Stored</div></td></tr>
+                <tr><td class="mf-mono">201-012</td><td>C2D1</td><td>Hyderabad</td><td class="mf-mono">15 Sep</td><td style="color:var(--danger);font-weight:600;font-size:11px">⚠ 21 Sep — OVERDUE</td><td><div class="sc-status overdue" style="margin:0;display:inline-flex"><span class="dot"></span>Overdue</div></td></tr>
+                <tr><td class="mf-mono">202-004</td><td>C2D1</td><td>Chennai</td><td class="mf-mono">18 Sep</td><td style="color:var(--warning);font-weight:500;font-size:11px">24 Sep — 2 days</td><td><div class="sc-status stored" style="margin:0;display:inline-flex"><span class="dot"></span>Stored</div></td></tr>
+                <tr><td class="mf-mono">202-009</td><td>C1D1</td><td>Chennai</td><td class="mf-mono">18 Sep</td><td style="color:var(--warning);font-weight:500;font-size:11px">24 Sep — 2 days</td><td><div class="sc-status stored" style="margin:0;display:inline-flex"><span class="dot"></span>Stored</div></td></tr>
+                <tr><td class="mf-mono">203-011</td><td>C3D1</td><td>Delhi</td><td class="mf-mono">20 Sep</td><td style="color:var(--warning);font-weight:500;font-size:11px">26 Sep — 4 days</td><td><div class="sc-status stored" style="margin:0;display:inline-flex"><span class="dot"></span>Stored</div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Manifest ── -->
+  <div id="view-manifest" class="view">
+    <div class="main-header">
+      <div>
+        <div class="main-title">Shipment manifest — auto-generated</div>
+        <div class="main-sub" id="mf-sub">SM-I-001 · Site 201 · Apollo Hyderabad</div>
+      </div>
+      <div class="h-actions">
+        <button class="btn" onclick="showView('dashboard')">← Dashboard</button>
+        <button class="btn success-btn" onclick="toast('Manifest saved — ready for dispatch','success')">Save manifest</button>
+      </div>
+    </div>
+    <div class="main-scroll">
+      <div style="max-width:900px">
+        <div class="form-card">
+          <div class="fc-header"><div class="fc-title">Shipment identification</div><span class="fc-badge b-mf">SM-I-001</span></div>
+          <div class="fc-body">
+            <div class="row2">
+              <div><label>Shipment ID</label><input id="mf-id" class="f-calc" readonly></div>
+              <div><label>Hospital site</label><input id="mf-site" class="f-scan" readonly></div>
+            </div>
+            <div class="row2">
+              <div><label>Week-ending date</label><input id="mf-week" class="f-calc" readonly></div>
+              <div><label>Packed by</label><input type="text" placeholder="Name"></div>
+            </div>
+            <div class="row2">
+              <div><label>Courier / carrier</label><input type="text" placeholder="e.g. DHL, FedEx, Blue Dart"></div>
+              <div>
+                <label>Airway bill / tracking no. <span style="color:var(--danger)">*</span> Only manual field</label>
+                <input type="text" id="mf-awb" placeholder="Enter on dispatch" style="border-color:#FCD34D;background:#FFFBEB">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="form-card">
+          <div class="fc-header"><div class="fc-title">Sample manifest</div><span style="font-size:10px;color:var(--success-text);font-weight:500">All fields auto-populated from session records — zero re-entry</span></div>
+          <div class="fc-body" style="padding:0;overflow-x:auto">
+            <table class="mtable" id="mf-table">
+              <thead><tr><th>Patient ID</th><th>Cycle</th><th>Sample type</th><th>Vial / filter ID</th><th>Box / storage ID</th><th>Processed</th><th>Ship temp</th><th>Include</th></tr></thead>
+              <tbody id="mf-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="form-card">
+          <div class="fc-header"><div class="fc-title">Cold chain &amp; packing checklist</div></div>
+          <div class="fc-body">
+            <div class="ck-row"><span class="ck-lbl">Dry ice used for frozen components (plasma, PBMCs)</span><div class="yn"><button class="yn-b yes" onclick="yn(this,'mf-di')">Y</button><button class="yn-b no" onclick="yn(this,'mf-di')">N</button></div></div>
+            <div class="row2" style="margin-top:10px">
+              <div><label>Dry ice quantity loaded (kg)</label><input type="number" placeholder="kg"></div>
+              <div><label>Temp logger ID — frozen</label><input type="text" placeholder="Logger ID"></div>
+            </div>
+            <div class="ck-row"><span class="ck-lbl">Temp logger included for chilled (4–8°C) filters</span><div class="yn"><button class="yn-b yes" onclick="yn(this,'mf-cl')">Y</button><button class="yn-b no" onclick="yn(this,'mf-cl')">N</button></div></div>
+            <div class="ck-row"><span class="ck-lbl">UN3373 "Biological Substance Category B" labelling applied</span><div class="yn"><button class="yn-b yes" onclick="yn(this,'mf-un')">Y</button><button class="yn-b no" onclick="yn(this,'mf-un')">N</button></div></div>
+            <div class="ck-row"><span class="ck-lbl">Insulated shipper / biohazard packaging confirmed intact</span><div class="yn"><button class="yn-b yes" onclick="yn(this,'mf-pk')">Y</button><button class="yn-b no" onclick="yn(this,'mf-pk')">N</button></div></div>
+            <div class="ck-row"><span class="ck-lbl">Outer box sealed and address label verified</span><div class="yn"><button class="yn-b yes" onclick="yn(this,'mf-bx')">Y</button><button class="yn-b no" onclick="yn(this,'mf-bx')">N</button></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+</div><!-- /shell -->
+
+<script>
+// ─── State ───
+const SITES={201:'Apollo Hyderabad',202:'Apollo Chennai',203:'Apollo Delhi',204:'Apollo Bangalore'};
+let S={};let demoTimer=null;let toastEl=null;
+
+// ─── Init ───
+buildBarcode();
+
+// ─── Barcode ───
+function buildBarcode(){
+  const c=document.getElementById('barcode-vis');if(!c)return;
+  const w=[2,1,3,1,2,1,1,2,3,1,2,1,1,3,2,1,1,2,1,3,2,1,3,1,2,1];
+  c.innerHTML='';
+  w.forEach((n,i)=>{const s=document.createElement('span');s.style.cssText=`width:${n*2}px;background:${i%2===0?'var(--text)':'transparent'}`;c.appendChild(s)});
+}
+
+document.getElementById('barcode-in').addEventListener('input',function(){
+  document.getElementById('start-btn').disabled=this.value.trim().length<5;
+});
+document.getElementById('barcode-in').addEventListener('keydown',e=>{if(e.key==='Enter')doScan();});
+
+function doScan(){
+  const raw=document.getElementById('barcode-in').value.trim();if(!raw)return;
+  const siteId=raw.split('-')[0]||'201';
+  S.patientId=raw;S.siteId=siteId;S.siteName=SITES[siteId]||'Apollo Hyderabad';
+  document.getElementById('start-btn').disabled=false;
+  toast('Barcode scanned — '+raw+' · '+S.siteName,'success');
+}
+
+function startSession(prefill){
+  const pid=prefill||S.patientId||document.getElementById('barcode-in').value.trim();
+  if(!pid){toast('Scan a barcode first');return;}
+  const cycle=document.getElementById('cycle-sel').value;
+  const siteId=S.siteId||'201';const siteName=SITES[siteId]||'Apollo Hyderabad';
+  const now=new Date();
+  const dateStr=now.getFullYear()+String(now.getMonth()+1).padStart(2,'0')+String(now.getDate()).padStart(2,'0');
+  const runId=siteId+'-'+dateStr+'-001A';
+  const tsNow=nowTs();
+  S={...S,patientId:pid,cycle,siteId,siteName,runId,startTs:tsNow};
+  // Fill form
+  setV('f-pid',pid);setV('f-cyc',cycle);setV('f-site',siteId+' — '+siteName);
+  setV('f-runid',runId);setV('f-ts-start',tsNow);
+  document.getElementById('ctc-runid').textContent=runId+'→003B';
+  document.getElementById('sess-title').textContent=pid+' · '+cycle;
+  document.getElementById('sess-sub').textContent=siteName+' · Run '+runId;
+  document.getElementById('ac-pid').textContent=pid;
+  document.getElementById('ac-cyc').textContent=cycle;
+  document.getElementById('ac-started').textContent='Started '+tsNow;
+  document.getElementById('active-card').style.display='block';
+  document.getElementById('sb-active').textContent='2';
+  // Pre-fill collection datetime
+  const d=now.toISOString().split('T')[0];
+  const t=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  setV('f-cdate',d);setV('f-ctime',t);setV('f-tech','Dr. S. Rao');
+  if(!prefill){showView('session');toast('Session started — timestamp recorded','success');}
+}
+
+function completeSession(){
+  if(!S.patientId){toast('No active session');return;}
+  S.completedTs=nowTs();S.completed=true;
+  document.getElementById('active-card').style.display='none';
+  const storedN=parseInt(document.getElementById('sb-stored').textContent)||4;
+  document.getElementById('sb-stored').textContent=storedN+1;
+  document.getElementById('sb-active').textContent='1';
+  const plasma=document.getElementById('out-plasma').textContent;
+  const pbmc=document.getElementById('out-pbmc').textContent;
+  S._plasma=plasma==='—'?3:parseInt(plasma);
+  S._pbmc=pbmc==='—'?6:parseInt(pbmc);
+  S._filters=2;
+
+  // Add to activity feed
+  const feed=document.getElementById('activity-feed');
+  const item=document.createElement('div');item.className='activity-item';
+  item.innerHTML=`<div class="activity-dot s"></div><div><div class="activity-main">${S.patientId} ${S.cycle} — session complete · ${S._plasma} plasma · ${S._pbmc} PBMCs · 2 filters</div><div class="activity-time">Now · ${S.completedTs}</div></div>`;
+  feed.insertBefore(item,feed.firstChild);
+
+  toast('Session complete — status: Stored','success');
+  setTimeout(()=>{openCard(S.patientId,S.cycle,'stored',S._plasma,S._pbmc,2,'29 Sep','7 days');},900);
+}
+
+// ─── Views ───
+function showView(v){
+  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');
+  if(v==='manifest')buildManifest();
+}
+
+// ─── Site switcher ───
+function switchSite(el,code){
+  document.querySelectorAll('.site-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('sb-site-label').textContent=code;
+  const labels={201:{a:'1',s:'4',d:'2'},202:{a:'0',s:'3',d:'3'},203:{a:'2',s:'1',d:'1'},204:{a:'0',s:'3',d:'1'}};
+  const l=labels[code]||labels[201];
+  document.getElementById('sb-active').textContent=l.a;
+  document.getElementById('sb-stored').textContent=l.s;
+  document.getElementById('sb-due').textContent=l.d;
+}
+
+// ─── Card ───
+function openStoredCard(el,pid,cycle,status,plasma,pbmc,filters,deadline,days){
+  document.querySelectorAll('.sc').forEach(c=>c.classList.remove('active'));
+  el&&el.classList&&el.classList.add('active');
+  openCard(pid,cycle,status,plasma,pbmc,filters,deadline,days);
+}
+
+function openCard(pid,cycle,status,plasma,pbmc,filters,deadline,days){
+  setV('card-pid',pid,'text');setV('card-cyc',cycle,'text');
+  setV('card-plasma',plasma,'text');setV('card-pbmc',pbmc,'text');setV('card-filters',filters,'text');
+  setV('card-deadline',deadline?'Ship by '+deadline+(days?' — '+days:''):'Shipped ✓','text');
+  setV('card-runid',S.runId||'201-20260922-001A','text');
+  setV('card-status-txt',status.charAt(0).toUpperCase()+status.slice(1),'text');
+  document.getElementById('card-title').textContent=pid+' · '+cycle;
+  S._cardPid=pid;S._cardCycle=cycle;S._cardPlasma=plasma;S._cardPbmc=pbmc;S._cardFilters=filters;
+  // Timeline
+  const tl=document.getElementById('card-timeline');
+  const steps=[
+    {c:'s',lbl:'Blood collected from patient',t:'07:45 IST · '+nowDate()},
+    {c:'s',lbl:'Received in pathology lab',t:'08:10 IST · '+nowDate()},
+    {c:'a',lbl:'Processing started (WS-003A)',t:S.startTs||'08:15 IST · '+nowDate()},
+    {c:'s',lbl:'Plasma isolated and stored at −80°C',t:'08:45 IST · '+nowDate()},
+    {c:'s',lbl:'PBMCs counted · '+pbmc+' cryovials prepared',t:'09:10 IST · '+nowDate()},
+    {c:'s',lbl:'CTC filters recovered and dried (WS-003B)',t:'09:40 IST · '+nowDate()},
+    {c:status==='stored'?'s':status==='shipped'?'p':'w',lbl:status==='stored'?'All samples stored — awaiting shipment':status==='shipped'?'Shipped to QIMR Brisbane':'In progress',t:S.completedTs||nowTs()+' · '+nowDate()},
+  ];
+  tl.innerHTML=steps.map((s,i)=>`<div class="tl-item"><div class="tl-dot activity-dot ${s.c}" style="margin-top:3px"></div>${i<steps.length-1?'<div class="tl-line"></div>':''}<div class="tl-body"><div class="tl-label">${s.lbl}</div><div class="tl-time">${s.t}</div></div></div>`).join('');
+  showView('card');
+}
+
+// ─── Manifest ───
+function buildManifest(){
+  const pid=S._cardPid||'201-001';const cycle=S._cardCycle||'C1D1';
+  const plasma=S._cardPlasma||3;const pbmc=S._cardPbmc||6;
+  const siteId=S.siteId||'201';const siteName=SITES[siteId]||'Apollo Hyderabad';
+  const today=nowDate();
+  setV('mf-id',siteId+'-PP-SHP-5','val');setV('mf-site',siteId+' — '+siteName,'val');setV('mf-week','27 Sep 2026','val');
+  document.getElementById('mf-sub').textContent='SM-I-001 · Site '+siteId+' · '+siteName;
+  const fz=document.getElementById('f-out-fz')?.value||'FZ-01';
+  const bx=document.getElementById('f-out-bx')?.value||'Box 13A';
+  const f1=document.getElementById('f-f1id')?.value||'F-2024003';
+  const f2=document.getElementById('f-f2id')?.value||'F-2024004';
+  const f1b=document.getElementById('f-f1box')?.value||'FILT-BOX-01';
+  const newRows=[];
+  for(let i=1;i<=plasma;i++)newRows.push({pid,cycle,type:'Plasma',id:`PLM-${String(i).padStart(3,'0')}`,box:`${fz}/${bx}`,temp:'frozen'});
+  for(let i=1;i<=pbmc;i++)newRows.push({pid,cycle,type:'PBMC',id:`PBMC-${String(i).padStart(3,'0')}`,box:`${fz}/${bx}`,temp:'frozen'});
+  newRows.push({pid,cycle,type:'Filter',id:f1,box:f1b,temp:'chill'});
+  newRows.push({pid,cycle,type:'Filter',id:f2,box:f1b,temp:'chill'});
+  const existing=[
+    {pid:'201-003',cycle:'C3D1',type:'Plasma',id:'PLM-003-001',box:'FZ-01/Box 12A',temp:'frozen'},
+    {pid:'201-003',cycle:'C3D1',type:'PBMC',id:'PBMC-003-001',box:'FZ-01/Box 12A',temp:'frozen'},
+    {pid:'201-003',cycle:'C3D1',type:'Filter',id:'F-2023997',box:'FILT-BOX-01',temp:'chill'},
+    {pid:'201-007',cycle:'C1D1',type:'Plasma',id:'PLM-007-001',box:'FZ-01/Box 12B',temp:'frozen'},
+    {pid:'201-007',cycle:'C1D1',type:'PBMC',id:'PBMC-007-001',box:'FZ-01/Box 12B',temp:'frozen'},
+    {pid:'201-007',cycle:'C1D1',type:'Filter',id:'F-2023999',box:'FILT-BOX-01',temp:'chill'},
+    {pid:'201-012',cycle:'C2D1',type:'Plasma',id:'PLM-012-001',box:'FZ-01/Box 11C',temp:'frozen'},
+    {pid:'201-012',cycle:'C2D1',type:'PBMC',id:'PBMC-012-001',box:'FZ-01/Box 11C',temp:'frozen'},
+    {pid:'201-012',cycle:'C2D1',type:'Filter',id:'F-2023991',box:'FILT-BOX-01',temp:'chill'},
+  ];
+  const allRows=[...newRows,...existing];
+  document.getElementById('mf-tbody').innerHTML=allRows.map(r=>`
+    <tr>
+      <td class="mf-mono">${r.pid}</td><td>${r.cycle}</td>
+      <td><span class="type-pill tp-${r.type.toLowerCase()}">${r.type}</span></td>
+      <td class="mf-mono">${r.id}</td><td class="mf-mono">${r.box}</td>
+      <td class="mf-mono">${today}</td>
+      <td><span class="type-pill ${r.temp==='frozen'?'tp-frozen':'tp-chill'}">${r.temp==='frozen'?'Frozen −80°C':'Chilled 4–8°C'}</span></td>
+      <td><input type="checkbox" checked style="width:auto;accent-color:var(--accent)"></td>
+    </tr>`).join('');
+}
+
+// ─── Form helpers ───
+function yn(btn,key){
+  const g=btn.closest('.yn');g.querySelectorAll('.yn-b').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
+  const isNo=btn.classList.contains('no');
+  const d=document.getElementById('dev-'+key);
+  if(d){d.innerHTML=isNo?`<div class="dev-box"><div class="dev-title"><svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 1L11 10H1L6 1Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M6 5v2M6 8.5v.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg> Deviation — describe and document corrective action</div><textarea placeholder="Step, description and corrective action taken…"></textarea></div>`:''}
+}
+
+function checkPH(v){
+  const val=parseFloat(v);const inp=document.getElementById('f-ph');const d=document.getElementById('dev-ph');
+  if(v&&(val<6.7||val>7.3)){inp.classList.add('f-danger');d.innerHTML=`<div class="dev-box"><div class="dev-title">pH ${val} is outside 6.7–7.3 — deviation required. Add NaOH in small increments and re-check.</div><textarea placeholder="Volume NaOH added, re-measured pH, outcome…"></textarea></div>`;}
+  else{inp.classList.remove('f-danger');d.innerHTML='';}
+}
+function checkNaOH(v){const d=document.getElementById('dev-naoh');d.innerHTML=parseFloat(v)>12?`<div class="dev-box"><div class="dev-title">NaOH >12µL — document. Up to 15µL acceptable; above that discard and use fresh kit.</div><textarea placeholder="Volume used, outcome…"></textarea></div>`:''}
+function checkLysis(v){const d=document.getElementById('dev-lysis');d.innerHTML=parseFloat(v)>10?`<div class="dev-box"><div class="dev-title">Lysis >10 min — proceed with wash immediately and document.</div><textarea placeholder="Actual time, action taken…"></textarea></div>`:''}
+
+function tubeChange(num,val){
+  const el=document.getElementById('tv'+num);if(!el)return;
+  el.className='tube-vis '+(val===''?'tube-default':val==='clear'?'tube-ok':'tube-bad');
+}
+
+function calcPBMC(){
+  const vs=['h1','h2','h3','h4'].map(id=>parseFloat(document.getElementById(id).value)||0);
+  const total=vs.reduce((a,b)=>a+b,0);
+  if(!total){document.getElementById('calc-result').style.display='none';return;}
+  const conc=Math.round((total/4)*8*10000);
+  const concM=(conc/1e6).toFixed(2);
+  const vials=Math.min(10,Math.max(2,Math.ceil(parseFloat(concM))));
+  document.getElementById('calc-result').style.display='block';
+  document.getElementById('cc-conc').textContent=conc.toLocaleString()+' cells/mL';
+  document.getElementById('cc-total').textContent=concM+' × 10⁶';
+  document.getElementById('cc-vials').textContent=vials;
+  setV('f-vials',vials,'val');
+  setV('out-pbmc',vials,'text');
+  const tbl=[[2e6,2,'0','1'],[3e6,3,'0.5','1.5'],[4e6,4,'1','2'],[5e6,5,'1.5','2.5'],[6e6,6,'2','3'],[7e6,7,'2.5','3.5'],[8e6,8,'3','4'],[9e6,9,'3.5','4.5']];
+  let row=tbl[tbl.length-1];for(const r of tbl){if(conc<=r[0]){row=r;break;}}
+  setV('f-res-v',row[2]+' mL','val');setV('f-cry-v',row[3]+' mL','val');setV('f-conc-v','≥ 1 × 10⁶ cells/mL','val');
+  const low=document.getElementById('calc-low');low.innerHTML=conc<2e6?`<div class="dev-box"><div class="dev-title">PBMC count < 2×10⁶ — freeze 2 vials at 1:1 ratio, document low yield</div></div>`:'';
+}
+
+function stamp(id,msg){
+  document.getElementById(id).value=nowTs();toast(msg,'success');
+}
+
+// ─── Demo mode ───
+const DEMO_STEPS=[
+  {lbl:'Scanning patient barcode 201-001…',desc:'Barcode scanned',fn:()=>{
+    document.getElementById('barcode-in').value='201-001';
+    document.getElementById('barcode-in').dispatchEvent(new Event('input'));
+    doScan();showView('welcome');
+  }},
+  {lbl:'Starting session — timestamp fires…',desc:'Session started',fn:()=>{
+    S.patientId='201-001';S.siteId='201';S.siteName='Apollo Hyderabad';
+    startSession('201-001');showView('session');
+  }},
+  {lbl:'Checking buffers — all confirmed…',desc:'Buffer checks complete',fn:()=>{
+    document.querySelectorAll('.yn-b.yes').forEach((b,i)=>{if(i<5)yn(b,null);});
+    // Auto-tick first 5 yes buttons
+    const yns=document.querySelectorAll('#s1 .yn-b.yes');yns.forEach(b=>b.click());
+    scrollTo('s2');
+  }},
+  {lbl:'Logging tube conditions — all clear…',desc:'Tubes 1,3,4,5 clear · Tube 2 reserved',fn:()=>{
+    setV('f-bvol','30','val');
+    document.querySelectorAll('#s2 select').forEach(s=>{if(s.value==='')s.value='clear';});
+    [1,3,4,5].forEach(n=>{const el=document.getElementById('tv'+n);if(el)el.className='tube-vis tube-ok';});
+    scrollTo('s4');
+    // Plasma
+    setTimeout(()=>{
+      document.getElementById('f-plasma-n').value=3;
+      document.getElementById('out-plasma').textContent='3';
+      yn(document.querySelector('#s4 .yn-b.yes'),'sp1');
+      yn(document.querySelectorAll('#s4 .yn-b.yes')[1],'buffy');
+    },300);
+  }},
+  {lbl:'Logging plasma isolated — timestamp fires…',desc:'3 plasma vials stored at −80°C',fn:()=>{
+    stamp('f-ts-plasma','Plasma storage logged');
+    setV('f-plasma-fz','FZ-01 / Box 13A','val');
+    document.querySelectorAll('#s4 .yn-b.yes').forEach(b=>b.click());
+    scrollTo('s5');
+  }},
+  {lbl:'Entering haemocytometer counts…',desc:'PBMC count auto-calculated',fn:()=>{
+    setV('h1','20','val');setV('h2','24','val');setV('h3','22','val');setV('h4','18','val');
+    ['h1','h2','h3','h4'].forEach(id=>document.getElementById(id).dispatchEvent(new Event('change')));
+    scrollTo('s6');setTimeout(()=>stamp('f-ts-cryo','PBMC cryovials logged'),400);
+  }},
+  {lbl:'CTC section — entering pH 6.2 (out of range)…',desc:'Deviation fires automatically',fn:()=>{
+    scrollTo('s7');
+    setTimeout(()=>{
+      setV('f-ph','6.2','val');
+      document.getElementById('f-ph').dispatchEvent(new Event('change'));
+      checkPH('6.2');
+    },400);
+  }},
+  {lbl:'Correcting pH to 7.1 — deviation clears…',desc:'CTC filters recorded',fn:()=>{
+    setV('f-ph','7.1','val');checkPH('7.1');
+    setV('f-naoh','9','val');
+    document.getElementById('f-naoh').dispatchEvent(new Event('change'));
+    document.querySelectorAll('#s7 .yn-b.yes').forEach(b=>b.click());
+    setV('f-f1id','F-2024003','val');setV('f-f2id','F-2024004','val');
+    setV('f-f1box','FILT-BOX-01','val');setV('f-f2box','FILT-BOX-01','val');
+    stamp('f-ts-dry1','');stamp('f-ts-dry2','');
+    setV('f-out-fz','FZ-01','val');setV('f-out-bx','Box 13A','val');
+    setV('f-sig-t','Dr. S. Rao','val');setV('f-sig-r','A. Bain','val');
+    scrollTo('s8');
+  }},
+  {lbl:'Completing session — dashboard updates live…',desc:'Status: Stored · Manifest ready',fn:()=>{
+    completeSession();
+  }},
+];
+
+let demoStep=0;
+
+function runDemo(){
+  demoStep=0;
+  document.getElementById('demo-banner').style.display='flex';
+  document.getElementById('demo-progress').style.display='block';
+  runDemoStep();
+}
+
+function runDemoStep(){
+  if(demoStep>=DEMO_STEPS.length){stopDemo();return;}
+  const step=DEMO_STEPS[demoStep];
+  const pct=Math.round(((demoStep+1)/DEMO_STEPS.length)*100);
+  document.getElementById('demo-step-lbl').textContent=`Step ${demoStep+1} of ${DEMO_STEPS.length}`;
+  document.getElementById('demo-step-desc').textContent=step.lbl;
+  document.getElementById('demo-bar').style.width=pct+'%';
+  toast(step.desc,'success');
+  try{step.fn();}catch(e){console.warn(e);}
+  demoStep++;
+  demoTimer=setTimeout(runDemoStep,2600);
+}
+
+function stopDemo(){
+  if(demoTimer)clearTimeout(demoTimer);
+  document.getElementById('demo-banner').style.display='none';
+  document.getElementById('demo-progress').style.display='none';
+}
+
+// ─── Helpers ───
+function setV(id,val,mode){
+  const el=document.getElementById(id);if(!el)return;
+  if(mode==='text')el.textContent=val;else el.value=val;
+}
+
+function scrollTo(id){
+  const el=document.getElementById(id);
+  if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function nowTs(){
+  return new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false})+' IST';
+}
+
+function nowDate(){
+  return new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+}
+
+function toast(msg,type){
+  if(toastEl)toastEl.remove();
+  toastEl=document.createElement('div');
+  toastEl.className='toast'+(type?' '+type:'');
+  toastEl.innerHTML=(type==='success'?'<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l4 4 6-6" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>':'')+msg;
+  document.body.appendChild(toastEl);
+  setTimeout(()=>toastEl&&toastEl.remove(),3000);
+}
+</script>
+</body>
+</html>
