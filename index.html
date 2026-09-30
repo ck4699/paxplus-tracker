@@ -141,12 +141,21 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 
 .ck-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:0.5px solid var(--border)}
 .ck-row:last-child{border-bottom:none}
 .ck-lbl{font-size:11px;color:var(--text-2);flex:1;line-height:1.4}
-.yn{display:flex;gap:5px;margin-left:10px;flex-shrink:0}
+.yn{display:flex;gap:5px;margin-left:10px;flex-shrink:0;align-items:center;align-self:flex-start}
+.ck-row .yn{align-self:center}
+.row2 .yn,.row3 .yn{margin-left:0}
+.yn-b{line-height:1.3;align-self:center}
 .yn-b{font-size:10px;font-weight:600;padding:3px 9px;border-radius:4px;border:0.5px solid var(--border-strong);background:var(--surface-2);color:var(--text-3);cursor:pointer;transition:all .12s}
 .yn-b.yes.on{background:var(--success-bg);color:var(--success-text);border-color:#9FD5C4}
 .yn-b.no.on{background:var(--danger-bg);color:var(--danger-text);border-color:#F5A49A}
 
 /* Demo highlight + speed */
+@media(max-width:600px){
+  .demo-banner{flex-wrap:wrap;row-gap:6px}
+  .demo-banner>div:first-child{flex:1 1 100%;min-width:0}
+  .demo-banner>div:last-child{flex:1 1 100%;justify-content:space-between}
+  .demo-banner .demo-banner-txt{font-size:11px;line-height:1.35}
+}
 .demo-focus{outline:2px solid var(--accent)!important;outline-offset:2px;box-shadow:0 0 0 5px rgba(37,99,235,.15)!important;transition:box-shadow .15s}
 .demo-speed{display:inline-flex;gap:3px;align-items:center;margin-right:4px}
 .demo-speed button{font-size:10px;padding:4px 7px;border-radius:4px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.08);color:#fff;cursor:pointer;font-family:var(--font)}
@@ -161,10 +170,10 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 
 .dev-box input[type=text]{margin-top:6px;font-size:11px;background:var(--surface)}
 .dev-empty{font-size:11px;color:var(--success);font-weight:500}
 /* Deviation */
-.dev-box{margin-top:6px;background:var(--danger-bg);border:0.5px solid #F5A49A;border-radius:var(--radius-sm);padding:9px 11px;animation:slideD .18s ease}
+.dev-box{margin:6px 0 10px;width:100%;box-sizing:border-box;background:var(--danger-bg);border:0.5px solid #F5A49A;border-radius:var(--radius-sm);padding:9px 11px;animation:slideD .18s ease}
 @keyframes slideD{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:translateY(0)}}
 .dev-title{font-size:10px;font-weight:600;color:var(--danger);margin-bottom:6px;display:flex;align-items:center;gap:4px}
-.dev-box textarea{font-size:11px;background:var(--surface);resize:none;height:48px}
+.dev-box textarea{font-size:11px;background:var(--surface);resize:none;height:38px;min-height:38px;width:100%;box-sizing:border-box}
 
 /* Tube grid */
 .tube-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px}
@@ -412,6 +421,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 
 
 /* ── Touch targets — all interactive elements min 44px on mobile ── */
 @media(max-width:600px){
+  .dev-box textarea{height:68px!important;min-height:68px!important;line-height:1.35;padding:8px 10px}
+  .dev-box input[type=text]{min-height:40px}
   .yn-b{padding:9px 16px;font-size:12px;min-height:36px}
   input[type=text],input[type=number],input[type=time],input[type=date],
   select,textarea{font-size:16px!important;padding:10px 11px;min-height:40px}
@@ -708,6 +719,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 
     </div>
     <div style="display:flex;gap:8px;align-items:center">
       <div class="demo-speed" id="demo-speed"><button onclick="setDemoSpeed(0.5)">0.5×</button><button class="on" onclick="setDemoSpeed(1)">1×</button><button onclick="setDemoSpeed(2)">2×</button><button onclick="setDemoSpeed(4)">4×</button></div>
+      <button class="btn" id="demo-pause-btn" style="font-size:11px;padding:5px 10px;color:#fff;border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.1);min-width:74px;justify-content:center" onclick="toggleDemoPause()">⏸ Pause</button>
       <button class="btn" style="font-size:11px;padding:5px 10px;color:#fff;border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.1)" onclick="stopDemo()">Stop demo</button>
     </div>
   </div>
@@ -755,6 +767,10 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 
             <option value="C15D1">C15D1</option><option value="C17D1">C17D1</option>
             <option value="EOT">End of treatment / early termination</option>
           </select>
+        </div>
+        <div class="mob-cycle-row" style="margin-top:10px">
+          <label style="color:rgba(255,255,255,0.7);margin-bottom:5px">Demo scenario</label>
+          <select id="demo-scn-mob" class="mob-cycle-sel" onchange="syncScn(this.value)"></select>
         </div>
         <div style="display:flex;gap:8px;margin-top:12px">
           <button class="mob-start-btn" id="start-btn" disabled onclick="startSession()">
@@ -865,6 +881,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 
             <option value="EOT">End of treatment / early termination</option>
           </select>
         </div>
+        <div class="row" style="margin-bottom:8px"><label>Demo scenario</label><select id="demo-scn-desk" onchange="syncScn(this.value)"></select></div>
         <div style="display:flex;gap:8px">
           <button class="btn primary" style="flex:1;justify-content:center;padding:10px" onclick="startSessionDesk()" id="start-btn-desk" disabled>Start session</button>
           <button class="btn demo-btn" style="justify-content:center;padding:10px 16px" onclick="runDemo()">
@@ -928,9 +945,10 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 
               <div class="row"><label>Hospital site</label><input id="f-site" class="f-scan" readonly></div>
               <div class="row"><label>Run ID (auto-generated)</label><input id="f-runid" class="f-calc" readonly></div>
               <div class="row2">
-                <div><label>Collection date</label><input type="date" id="f-cdate"></div>
-                <div><label>Collection time</label><input type="time" id="f-ctime"></div>
+                <div><label>Collection date</label><input type="date" id="f-cdate" onchange="checkWindow()"></div>
+                <div><label>Collection time</label><input type="time" id="f-ctime" onchange="checkWindow()"></div>
               </div>
+              <div id="dev-window"></div>
               <div class="row2">
                 <div><label>Processing started</label><input id="f-ts-start" class="f-auto" readonly></div>
                 <div><label>Processing technician</label><input type="text" id="f-tech" placeholder="Initials / name"></div>
@@ -985,6 +1003,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 
                 <select style="width:100%;font-size:9px;padding:3px 4px" onchange="tubeChange(5,this.value)"><option value="">Check</option><option value="clear">Clear</option><option value="clotted">Clotted</option><option value="haem">Haem.</option><option value="leak">Leaking</option><option value="under">Underfill</option></select>
               </div>
             </div>
+            <div id="dev-tubes"></div>
             <div class="row"><label>Total pooled blood volume — tubes 1,3,4,5 (mL)</label><input type="number" id="f-bvol" placeholder="e.g. 30" min="0" max="40" step="0.5"></div>
           </div>
         </div>
@@ -1119,6 +1138,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 
                   <div><label>Device 1 — 7mL loaded?</label><div class="yn" style="margin-top:4px"><button class="yn-b yes" onclick="yn(this,'d1')">Y</button><button class="yn-b no" onclick="yn(this,'d1')">N</button></div></div>
                   <div><label>Device 2 — 7mL loaded?</label><div class="yn" style="margin-top:4px"><button class="yn-b yes" onclick="yn(this,'d2')">Y</button><button class="yn-b no" onclick="yn(this,'d2')">N</button></div></div>
                 </div>
+                <div id="dev-d1"></div><div id="dev-d2"></div>
                 <div class="ck-row"><span class="ck-lbl">PBS washes 2×800µL per SOP?</span><div class="yn"><button class="yn-b yes" onclick="yn(this,'pbs')">Y</button><button class="yn-b no" onclick="yn(this,'pbs')">N</button></div></div>
                 <div id="dev-pbs"></div>
                 <div class="ck-row"><span class="ck-lbl">Filtration issue observed?</span><div class="yn"><button class="yn-b yes" onclick="yn(this,'fi')">Y</button><button class="yn-b no" onclick="yn(this,'fi')">N</button></div></div>
@@ -1130,20 +1150,22 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 
             <div class="grid2">
               <div>
                 <div class="row"><label>Filter 1 — engraved ID</label><input type="text" id="f-f1id" placeholder="e.g. F-2024001" style="font-family:var(--mono)"></div>
-                <div class="row"><label>Filter 1 condition</label><select id="f-f1cond"><option value="intact">Intact</option><option value="curled">Curled</option><option value="torn">Torn</option><option value="folded">Folded</option></select></div>
+                <div class="row"><label>Filter 1 condition</label><select id="f-f1cond" onchange="checkFilter(1)"><option value="intact">Intact</option><option value="curled">Curled</option><option value="torn">Torn</option><option value="folded">Folded</option></select></div>
                 <div class="row"><label>Storage box ID</label><input type="text" id="f-f1box" placeholder="e.g. FILT-BOX-01"></div>
               </div>
               <div>
                 <div class="row"><label>Filter 2 — engraved ID</label><input type="text" id="f-f2id" placeholder="e.g. F-2024002" style="font-family:var(--mono)"></div>
-                <div class="row"><label>Filter 2 condition</label><select id="f-f2cond"><option value="intact">Intact</option><option value="curled">Curled</option><option value="torn">Torn</option><option value="folded">Folded</option></select></div>
+                <div class="row"><label>Filter 2 condition</label><select id="f-f2cond" onchange="checkFilter(2)"><option value="intact">Intact</option><option value="curled">Curled</option><option value="torn">Torn</option><option value="folded">Folded</option></select></div>
                 <div class="row"><label>Storage box ID</label><input type="text" id="f-f2box" placeholder="e.g. FILT-BOX-01"></div>
               </div>
             </div>
+            <div id="dev-f1cond"></div><div id="dev-f2cond"></div>
             <div class="row3" style="margin-top:8px">
               <div><label>Oven 37°C confirmed?</label><div class="yn" style="margin-top:4px"><button class="yn-b yes" onclick="yn(this,'oven')">Y</button><button class="yn-b no" onclick="yn(this,'oven')">N</button></div></div>
               <div><label>Drying started</label><input id="f-ts-dry1" class="f-auto" readonly><button class="btn" style="margin-top:4px;width:100%;justify-content:center;font-size:10px;padding:5px" onclick="stamp('f-ts-dry1','Drying started')">Log start</button></div>
               <div><label>Drying complete (target 1h)</label><input id="f-ts-dry2" class="f-auto" readonly><button class="btn" style="margin-top:4px;width:100%;justify-content:center;font-size:10px;padding:5px" onclick="stamp('f-ts-dry2','Drying complete')">Log end</button></div>
             </div>
+            <div id="dev-oven"></div>
           </div>
         </div>
 
@@ -1549,7 +1571,8 @@ function completeSession(){
 
   toast('Session complete — status: Stored','success');
   const _dl=new Date(Date.now()+7*864e5).toLocaleDateString('en-GB',{day:'2-digit',month:'short'});
-  setTimeout(()=>{openCard(S.patientId,S.cycle,'stored',S._plasma,S._pbmc,2,_dl,'7 days');},900);
+  const _c={pid:S.patientId,cyc:S.cycle,pl:S._plasma,pb:S._pbmc};
+  setTimeout(()=>{if(_c.pid)openCard(_c.pid,_c.cyc,'stored',_c.pl,_c.pb,2,_dl,'7 days');},900);
 }
 
 // ─── Views ───
@@ -1721,10 +1744,14 @@ function devBoxHTML(d,k,title){
 }
 function flagDev(hostId,key,cond,o,anchor){
   const k=o.k;let host=document.getElementById(hostId);
+  if(!host&&o.wrap){
+    const w=document.getElementById(o.wrap);
+    if(w){host=document.createElement('div');host.id=hostId;w.appendChild(host);}
+  }
   if(!host&&anchor){
     host=document.createElement('div');host.id=hostId;
-    const row=anchor.closest('.ck-row');
-    if(row)row.after(host);else anchor.closest('.yn').parentElement.appendChild(host);
+    const row=anchor.closest('.ck-row')||anchor.closest('.row')||anchor.closest('.row2')||anchor.closest('.row3');
+    if(row)row.after(host);else anchor.parentElement.appendChild(host);
   }
   const arr=DEVLOG[k]||(DEVLOG[k]=[]);
   let d=arr.find(x=>x.key===key);
@@ -1759,6 +1786,21 @@ function yn(btn,key){
   if(src==='SM-I-001')renderMfDevs();
 }
 
+function checkWindow(){
+  const cd=document.getElementById('f-cdate')?.value,ct=document.getElementById('f-ctime')?.value;
+  if(!cd||!ct||!S.ev||!S.ev.start)return;
+  const col=new Date(cd+'T'+ct).getTime();const mins=Math.round((S.ev.start-col)/60000);
+  if(isNaN(mins))return;
+  const h=Math.floor(mins/60),m=mins%60;
+  flagDev('dev-window','window',mins>120,{k:devKey(),src:'WS-003A',step:'Sample & site identification',label:'Processing window exceeded',
+    detail:'Processing started '+h+' h '+m+' min after collection (target ≤2 h; '+(mins>480?'EXCEEDS the 8 h maximum':'8 h maximum')+')',
+    title:'Processed '+h+' h '+m+' min after collection — target is ≤2 h (max 8 h). Document and assess impact on sample integrity.'});
+}
+function checkFilter(n){
+  const sel=document.getElementById('f-f'+n+'cond');if(!sel)return;const v=sel.value;
+  flagDev('dev-f'+n+'cond','f'+n+'cond',v!=='intact',{k:devKey(),src:'WS-003B',step:'Filter recovery & drying',label:'Filter '+n+' condition',
+    detail:'Filter '+n+' recorded as '+v,title:'Filter '+n+' is '+v+' — record the damage and notify the study coordinator.'},sel);
+}
 function checkPH(v){
   const val=parseFloat(v);const inp=document.getElementById('f-ph');
   const bad=v!==''&&!isNaN(val)&&(val<6.7||val>7.3);
@@ -1781,6 +1823,8 @@ function checkLysis(v){
 function tubeChange(num,val){
   const el=document.getElementById('tv'+num);if(!el)return;
   el.className='tube-vis '+(val===''?'tube-default':val==='clear'?'tube-ok':'tube-bad');
+  flagDev('dev-tube'+num,'tube'+num,val!==''&&val!=='clear',{k:devKey(),src:'WS-003A',step:'Blood tube tracking',label:'Tube '+num+' condition',
+    detail:'Tube '+num+' recorded as '+val,title:'Tube '+num+' is '+val+' — record on the worksheet and notify the study coordinator.',wrap:'dev-tubes'});
 }
 
 function calcPBMC(){
@@ -1810,7 +1854,7 @@ function stamp(id,msg){
 
 // ─── Demo mode ───
 // ─── Demo mode — fills every field at human pace (speed adjustable) ───
-let demoSpeed=1,demoAbort=false,demoRunning=false,DEMO_DRY=false,DEMO_NOMINAL=0;
+let demoSpeed=1,demoAbort=false,demoRunning=false,demoPaused=false,DEMO_DRY=false,DEMO_NOMINAL=0;
 function setDemoSpeed(x){
   demoSpeed=x;
   document.querySelectorAll('#demo-speed button').forEach(b=>b.classList.toggle('on',parseFloat(b.textContent)===x));
@@ -1818,13 +1862,39 @@ function setDemoSpeed(x){
 function dSleep(ms){
   if(demoAbort)return Promise.reject(new Error('demo-stop'));
   if(DEMO_DRY){DEMO_NOMINAL+=ms;return Promise.resolve();}
-  return new Promise((res,rej)=>setTimeout(()=>demoAbort?rej(new Error('demo-stop')):res(),ms/demoSpeed));
+  return new Promise((res,rej)=>{
+    let left=ms/demoSpeed;const slice=60;
+    const tick=()=>{
+      if(demoAbort)return rej(new Error('demo-stop'));
+      if(demoPaused)return setTimeout(tick,slice);          // frozen while paused
+      if(left<=0)return res();
+      const d=Math.min(slice,left);left-=d;setTimeout(tick,d);
+    };
+    tick();
+  });
+}
+function toggleDemoPause(){
+  if(!demoRunning)return;
+  demoPaused=!demoPaused;
+  const b=document.getElementById('demo-pause-btn');if(b)b.textContent=demoPaused?'▶ Resume':'⏸ Pause';
+  const lb=document.getElementById('demo-step-lbl');
+  if(lb){if(demoPaused){lb.dataset.base=lb.textContent;lb.textContent='⏸ Paused · '+lb.textContent;}else if(lb.dataset.base){lb.textContent=lb.dataset.base;}}
+  const d=document.getElementById('demo-step-desc');
+  if(d){
+    if(demoPaused){d.dataset.base=d.textContent;d.textContent='Paused — you can scroll or look around. Press Resume to continue.';}
+    else if(d.dataset.base){d.textContent=d.dataset.base;}
+  }
+  const ban=document.getElementById('demo-banner');if(ban)ban.style.opacity=demoPaused?'.92':'';
 }
 const $d=id=>document.getElementById(id);
 async function dFocus(el,pause){
   if(!el)return;
   el.scrollIntoView({behavior:DEMO_DRY?'auto':'smooth',block:'center'});
   await dSleep(pause||550);
+  if(!DEMO_DRY){
+    const r=el.getBoundingClientRect();
+    if(Math.abs((r.top+r.height/2)-window.innerHeight/2)>140)el.scrollIntoView({behavior:'auto',block:'center'});
+  }
   el.classList.add('demo-focus');
 }
 function dBlur(el){if(el){el.classList.remove('demo-focus');el.blur&&el.blur();}}
@@ -1879,39 +1949,118 @@ async function dDocDev(hostId,action,notified){
   await dTypeEl(box.querySelector('input'),notified,55);
 }
 
-const DEMO_PHASES=[
-  {lbl:'Scanning patient barcode 201-001…',desc:'Barcode scanned',run:async()=>{
+// ─── Demo scenarios ───
+const DEMO_SCENARIOS=[
+  {id:'clean',name:'Clean run — no deviations',pid:'202-001',cycle:'C2D1',tech:'R. Menon',minsBefore:75,haemo:[40,44,42,46],ph:['7.0'],naoh:'6'},
+  {id:'ph',name:'Out-of-range pH + low PBMC yield',pid:'201-001',cycle:'C1D1',tech:'Dr. S. Rao',minsBefore:90,haemo:[20,24,22,18],ph:['6.2','7.1'],naoh:'9'},
+  {id:'clot',name:'Clotted tube + late processing (5 h)',pid:'203-004',cycle:'C3D1',tech:'P. Sharma',minsBefore:300,tubes:{3:'clotted'},haemo:[38,36,40,34],ph:['7.1'],naoh:'6'},
+  {id:'centrifuge',name:'Centrifuge brake error + RBC lysis overrun',pid:'204-002',cycle:'C5D1',tech:'K. Iyer',minsBefore:100,sp2:'no',lysis:'12',haemo:[36,32,34,30],ph:['7.2'],naoh:'6'},
+  {id:'filter',name:'Filtration failure + torn filter',pid:'202-006',cycle:'C7D1',tech:'S. Nair',minsBefore:80,fi:'yes',d2:'no',f:['intact','torn'],haemo:[42,40,44,38],ph:['7.1'],naoh:'9'},
+  {id:'eot',name:'End-of-treatment visit — high yield (10 vials)',pid:'203-009',cycle:'EOT',tech:'A. Gupta',minsBefore:60,haemo:[140,150,145,135],ph:['7.0'],naoh:'3'},
+  {id:'manifest',name:'Weekly shipment — manifest with cold-chain deviation',type:'manifest'}
+];
+let demoChoice='auto',demoRot=0;
+try{const r=parseInt(localStorage.getItem('paxplusDemoRot'));if(!isNaN(r))demoRot=r;}catch(e){}
+function buildScnSelects(){
+  ['demo-scn-desk','demo-scn-mob'].forEach(id=>{
+    const el=document.getElementById(id);if(!el)return;
+    el.innerHTML='<option value="auto">Auto — next scenario each run</option>'+DEMO_SCENARIOS.map(x=>'<option value="'+x.id+'">'+esc(x.name)+'</option>').join('');
+    el.value=demoChoice;
+  });
+}
+function syncScn(v){demoChoice=v;['demo-scn-desk','demo-scn-mob'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=v;});}
+function pickScenario(){
+  let c;
+  if(demoChoice==='auto'){
+    c=DEMO_SCENARIOS[demoRot%DEMO_SCENARIOS.length];demoRot++;
+    try{localStorage.setItem('paxplusDemoRot',String(demoRot%DEMO_SCENARIOS.length));}catch(e){}
+  }else c=DEMO_SCENARIOS.find(x=>x.id===demoChoice)||DEMO_SCENARIOS[0];
+  return c;
+}
+buildScnSelects();
+
+// Typical corrective action + notification for each kind of deviation
+const DEV_TXT={
+  ph:['Added 9 µL NaOH in 3 µL steps, re-measured pH 7.1 — within range','Y — Study coordinator'],
+  lowyield:['Frozen across 2 vials at 1:1 ratio per SOP; yield recorded on worksheet','Y — Study coordinator'],
+  tube3:['Tube 3 clotted — recorded; blood volume adjusted and processing continued','Y — Study coordinator'],
+  window:['Processed as soon as practicable, within the 8 h maximum; integrity impact to be assessed','Y — Study coordinator'],
+  sp2:['Spin run with brakes ON by mistake; continued per SOP troubleshooting','Y — Study coordinator'],
+  lysis:['Proceeded to wash immediately; prolonged exposure recorded','Y — Study coordinator'],
+  fi:['Device 2 draining slowly; monitored until complete, prolonged time recorded','Y — Study coordinator'],
+  d2:['Only part of the 7 mL loaded to device 2; approximate volume recorded','Y — Study coordinator'],
+  f2cond:['Filter 2 tore during handling; all pieces retained and stored with its ID','Y — Study coordinator'],
+  'mf-cl':['Chilled-component logger not available; temperature checked manually at packing','Y — QA / Study coordinator']
+};
+async function dDocOpen(){
+  for(const box of [...document.querySelectorAll('.dev-box[data-dev]')]){
+    const d=(DEVLOG[box.dataset.k]||[]).find(x=>x.key===box.dataset.dev);
+    if(!d||(d.action&&d.notified))continue;
+    const t=DEV_TXT[d.key]||['Documented per SOP troubleshooting','Y — Study coordinator'];
+    await dSleep(500);
+    await dTypeEl(box.querySelector('textarea'),t[0],45);
+    await dTypeEl(box.querySelector('input'),t[1],55);
+  }
+}
+function dYNAns(key,ans){return dClickEl(document.querySelector('.yn-b.'+ans+'[onclick*="\''+key+'\'"]'),350);}
+
+// Clear everything a previous run left behind so each scenario starts fresh
+function resetDemoState(c){
+  S={};
+  if(c.pid)delete DEVLOG[c.pid+'|'+c.cycle];
+  if(c.type==='manifest')delete DEVLOG[SHIPKEY];
+  document.querySelectorAll('#view-session input,#view-session select,#view-session textarea').forEach(el=>{
+    if(el.tagName==='SELECT')el.selectedIndex=0;else el.value='';
+    el.classList.remove('f-danger','demo-focus');
+  });
+  document.querySelectorAll('#view-manifest input[type=text]').forEach(el=>el.value='');
+  const set=(id,fn)=>{const e=document.getElementById(id);if(e)fn(e);};
+  set('f-plasma-n',e=>e.value='3');set('out-plasma',e=>e.textContent='3');set('out-pbmc',e=>e.textContent='—');
+  set('calc-result',e=>e.style.display='none');
+  document.querySelectorAll('.yn-b').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('#view-session [id^="dev-"],#view-manifest [id^="dev-"]').forEach(d=>d.innerHTML='');
+  set('calc-low',e=>e.innerHTML='');
+  [1,3,4,5].forEach(n=>set('tv'+n,e=>e.className='tube-vis tube-default'));
+  ['barcode-in','barcode-in-desk'].forEach(id=>set(id,e=>e.value=''));
+  ['cycle-sel','cycle-sel-desk'].forEach(id=>set(id,e=>e.selectedIndex=0));
+  ['start-btn','start-btn-desk'].forEach(id=>set(id,e=>e.disabled=true));
+}
+
+function sessionPhases(c){
+  return [
+  {lbl:'Scanning patient barcode '+c.pid+'…',desc:'Barcode scanned',run:async()=>{
     const mob=isMobile();
     if(mob)mobileNav('mobile-home');else showView('welcome');
     await dSleep(900);
-    await dType(mob?'barcode-in':'barcode-in-desk','201-001',110);
+    await dType(mob?'barcode-in':'barcode-in-desk',c.pid,110);
     await dSleep(500);
     mob?doScan():doScanDesk();
     await dSleep(700);
-    await dSelect($d(mob?'cycle-sel':'cycle-sel-desk'),'C1D1');
+    await dSelect($d(mob?'cycle-sel':'cycle-sel-desk'),c.cycle);
   }},
   {lbl:'Starting session — timestamp fires…',desc:'Session started',run:async()=>{
     const mob=isMobile();
     const sb=$d(mob?'start-btn':'start-btn-desk');
     if(sb){sb.disabled=false;await dClickEl(sb,500);}
-    else{S.patientId='201-001';S.siteId='201';S.siteName='Apollo Hyderabad';startSession('201-001');showView('session');}
     if(!document.getElementById('view-session').classList.contains('active')){
-      S.patientId='201-001';S.siteId='201';S.siteName='Apollo Hyderabad';startSession('201-001');showView('session');
+      startSession(S.patientId||c.pid);showView('session');
     }
     await dSleep(1200);
-    // collection ~90 min before processing (target window ≤2 h)
-    const c=new Date(Date.now()-90*60000);
+    const col=new Date(Date.now()-c.minsBefore*60000);
     const pad=n=>String(n).padStart(2,'0');
-    await dTypeEl($d('f-cdate'),c.getFullYear()+'-'+pad(c.getMonth()+1)+'-'+pad(c.getDate()));
-    await dTypeEl($d('f-ctime'),pad(c.getHours())+':'+pad(c.getMinutes()));
-    await dType('f-tech','Dr. S. Rao',90);
+    await dTypeEl($d('f-cdate'),col.getFullYear()+'-'+pad(col.getMonth()+1)+'-'+pad(col.getDate()));
+    await dTypeEl($d('f-ctime'),pad(col.getHours())+':'+pad(col.getMinutes()));
+    await dDocOpen();
+    await dType('f-tech',c.tech||'Dr. S. Rao',90);
   }},
   {lbl:'Checking buffers — one by one…',desc:'Buffer checks complete',run:async()=>{
     await dYNs(['buf-pbs','buf-res','buf-cry','buf-mrf','buf-rbc']);
   }},
-  {lbl:'Logging tubes, blood volume and reagent lots…',desc:'Tubes 1,3,4,5 clear · Tube 2 reserved · lots recorded',run:async()=>{
-    await dType('f-bvol','30',120);
-    for(const sel of [...document.querySelectorAll('#s2 select')])await dSelect(sel,'clear');
+  {lbl:'Logging tubes, blood volume and reagent lots…',desc:'Tubes recorded · Tube 2 reserved · lots recorded',run:async()=>{
+    await dType('f-bvol',(c.tubes&&Object.keys(c.tubes).length)?'24':'30',120);
+    const sels=[...document.querySelectorAll('#s2 select')];const nums=[1,3,4,5];
+    for(let i=0;i<sels.length;i++)await dSelect(sels[i],(c.tubes&&c.tubes[nums[i]])||'clear');
+    await dDocOpen();
     const lots=[['lymph','LP240711','2027-03-31'],['sep','SM250114','2027-06-30'],['pbs','PB240715','2027-01-31'],['fbs','FBS2401','2027-02-28'],['rpm','RP250302','2027-05-31'],['rbc','RB240918','2027-04-30'],['try','TB240811','2027-08-31'],['dms','DM240901','2027-09-30']];
     for(const [k,lot,exp] of lots){await dType('rl-'+k,lot,60);await dTypeEl($d('re-'+k),exp);}
   }},
@@ -1925,30 +2074,37 @@ const DEMO_PHASES=[
   {lbl:'SepMate, PBMC wash, RBC lysis and cell count…',desc:'PBMC count auto-calculated',run:async()=>{
     await dTypeEl(dByLabel('Tube A diluted'),'17',120);
     await dTypeEl(dByLabel('Tube B diluted'),'17',120);
-    await dYNs(['sp2','buffy2','spw']);
-    await dType('f-lysis','8',150);
+    await dYNAns('sp2',c.sp2||'yes');
+    await dYNAns('buffy2','yes');
+    await dYNAns('spw','yes');
+    await dType('f-lysis',c.lysis||'8',150);
     await dYNKey('spp');
-    for(const [id,v] of [['h1','20'],['h2','24'],['h3','22'],['h4','18']])await dType(id,v,120);
+    await dDocOpen();
+    for(let i=0;i<4;i++)await dType('h'+(i+1),String(c.haemo[i]),120);
     await dSleep(1200);
-    // low yield (<2×10⁶) raises a deviation — document it
-    await dDocDev('calc-low','Frozen across 2 vials at 1:1 ratio per SOP; yield recorded on worksheet','Y — Study coordinator');
+    await dDocOpen();
     await dStampBtn('f-ts-cryo');
   }},
-  {lbl:'CTC section — entering pH 6.2 (out of range)…',desc:'Deviation fires automatically',run:async()=>{
-    await dType('f-ph','6.2',140);
-    await dDocDev('dev-ph','Added 9 µL NaOH in 3 µL steps, re-measured pH 7.1 — within range','Y — Study coordinator');
-    await dSleep(500);
-    await dType('f-ph','7.1',140);
-    await dType('f-naoh','9',150);
+  {lbl:'CTC section — FC2 buffer pH and NaOH…',desc:'FC2 buffer prepared',run:async()=>{
+    for(const v of c.ph){
+      await dType('f-ph',v,140);
+      await dDocOpen();
+      await dSleep(400);
+    }
+    await dType('f-naoh',c.naoh,150);
+    await dDocOpen();
   }},
   {lbl:'ScreenCell filtration, filter IDs and drying…',desc:'CTC filters recorded',run:async()=>{
-    await dYNs(['inc','d1','d2','pbs','fi']);
-    await dType('f-f1id','F-2024003',75);
-    await dSelect($d('f-f1cond'),'intact');
+    await dYNAns('inc','yes');await dYNAns('d1','yes');await dYNAns('d2',c.d2||'yes');await dYNAns('pbs','yes');await dYNAns('fi',c.fi||'no');
+    await dDocOpen();
+    const f=c.f||['intact','intact'];
+    await dType('f-f1id','F-20'+c.pid.slice(-3)+'01',75);
+    await dSelect($d('f-f1cond'),f[0]);
     await dType('f-f1box','FILT-BOX-01',65);
-    await dType('f-f2id','F-2024004',75);
-    await dSelect($d('f-f2cond'),'intact');
+    await dType('f-f2id','F-20'+c.pid.slice(-3)+'02',75);
+    await dSelect($d('f-f2cond'),f[1]);
     await dType('f-f2box','FILT-BOX-01',65);
+    await dDocOpen();
     await dYNKey('oven');
     await dStampBtn('f-ts-dry1');
     await dSleep(1500);
@@ -1957,35 +2113,85 @@ const DEMO_PHASES=[
   {lbl:'Sign-off — storage location and signatures…',desc:'Status: Stored · Manifest ready',run:async()=>{
     await dType('f-out-fz','FZ-01',90);
     await dType('f-out-bx','Box 13A',90);
-    await dType('f-sig-t','Dr. S. Rao',80);
+    await dType('f-sig-t',c.tech||'Dr. S. Rao',80);
     await dType('f-sig-r','A. Bain',80);
+    await dDocOpen();
     await dClickEl(document.querySelector('button[onclick="completeSession()"]'),600);
-    await dSleep(3500);   // let the sample record open and be seen
+    await dSleep(3500);
+  }}];
+}
+
+function manifestPhases(c){
+  const lab=t=>{const l=[...document.querySelectorAll('#view-manifest label')].find(x=>x.textContent.includes(t));return l?l.parentElement.querySelector('input'):null;};
+  const go=v=>isMobile()?mobileNav(v):showView(v);
+  return [
+  {lbl:'Central dashboard — weekly overview…',desc:'Dashboard',run:async()=>{
+    go('dashboard');renderDashDevs();
+    await dSleep(2500);
+    await dFocus($d('dash-dev-card'),600);await dSleep(2500);
   }},
-];
+  {lbl:'Generating the weekly manifest…',desc:'Manifest auto-generated',run:async()=>{
+    const btn=document.querySelector('#view-dashboard .h-actions .btn.primary');
+    if(btn)await dClickEl(btn,700);else go('manifest');
+    if(!document.getElementById('view-manifest').classList.contains('active'))go('manifest');
+    await dSleep(1500);
+    await dFocus($d('mf-table'),600);await dSleep(2500);
+  }},
+  {lbl:'Shipment details — packer, courier, airway bill…',desc:'Shipment details entered',run:async()=>{
+    await dTypeEl(lab('Packed by'),'S. Kumar',90);
+    await dTypeEl(lab('Courier'),'Blue Dart',90);
+    await dType('mf-awb','BD-77421983-HYD',80);
+  }},
+  {lbl:'Cold-chain checklist — logger missing…',desc:'Cold-chain deviation raised',run:async()=>{
+    await dYNAns('mf-di','yes');
+    await dYNAns('mf-cl','no');
+    await dDocOpen();
+    await dYNAns('mf-un','yes');await dYNAns('mf-pk','yes');await dYNAns('mf-bx','yes');
+  }},
+  {lbl:'Shipment-level deviation and save…',desc:'Manifest saved',run:async()=>{
+    await dType('mf-dv-sample','PLM-003',80);
+    await dType('mf-dv-not','Y — Study coordinator',50);
+    await dType('mf-dv-desc','Sample held 9 days before shipment (limit 7 days)',40);
+    await dType('mf-dv-act','Central laboratory notified; storage duration and conditions recorded',35);
+    await dClickEl(document.querySelector('button[onclick="addMfDev()"]'),500);
+    await dFocus($d('mf-devlog'),600);await dSleep(3000);
+    await dClickEl(document.querySelector('#view-manifest .success-btn'),600);
+  }},
+  {lbl:'Back on the dashboard — deviations flagged…',desc:'Dashboard updated',run:async()=>{
+    go('dashboard');renderDashDevs();
+    await dSleep(1200);
+    await dFocus($d('dash-dev-card'),600);await dSleep(3500);
+  }}];
+}
 
 async function runDemo(){
   if(demoRunning){demoAbort=true;while(demoRunning)await new Promise(r=>setTimeout(r,30));}
-  demoRunning=true;demoAbort=false;
+  demoRunning=true;demoAbort=false;demoPaused=false;
+  {const b=document.getElementById('demo-pause-btn');if(b)b.textContent='⏸ Pause';}
+  const scn=pickScenario();
+  resetDemoState(scn);
+  const phases=scn.type==='manifest'?manifestPhases(scn):sessionPhases(scn);
   document.getElementById('demo-banner').style.display='flex';
   document.getElementById('demo-progress').style.display='block';
   try{
-    for(let i=0;i<DEMO_PHASES.length;i++){
-      const ph=DEMO_PHASES[i];
-      document.getElementById('demo-step-lbl').textContent=`Step ${i+1} of ${DEMO_PHASES.length}`;
-      document.getElementById('demo-step-desc').textContent=ph.lbl;
-      document.getElementById('demo-bar').style.width=Math.round(((i+1)/DEMO_PHASES.length)*100)+'%';
+    for(let i=0;i<phases.length;i++){
+      const ph=phases[i];
+      {const lb=document.getElementById('demo-step-lbl');lb.textContent=scn.name+' · Step '+(i+1)+' of '+phases.length;lb.dataset.base=lb.textContent;}
+      {const dd=document.getElementById('demo-step-desc');dd.textContent=ph.lbl;dd.dataset.base=ph.lbl;}
+      document.getElementById('demo-bar').style.width=Math.round(((i+1)/phases.length)*100)+'%';
       if(!DEMO_DRY)toast(ph.desc,'success');
       await ph.run();
       await dSleep(700);
     }
+    if(!DEMO_DRY&&demoChoice==='auto')toast('Next run: '+DEMO_SCENARIOS[demoRot%DEMO_SCENARIOS.length].name,'success');
   }catch(e){if(!e||e.message!=='demo-stop')console.warn(e);}
   demoRunning=false;
   stopDemo();
 }
 
 function stopDemo(){
-  demoAbort=true;
+  demoAbort=true;demoPaused=false;
+  {const b=document.getElementById('demo-pause-btn');if(b)b.textContent='⏸ Pause';const ban=document.getElementById('demo-banner');if(ban)ban.style.opacity='';}
   document.querySelectorAll('.demo-focus').forEach(el=>el.classList.remove('demo-focus'));
   document.getElementById('demo-banner').style.display='none';
   document.getElementById('demo-progress').style.display='none';
