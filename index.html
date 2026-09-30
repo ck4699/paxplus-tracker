@@ -146,6 +146,20 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 
 .yn-b.yes.on{background:var(--success-bg);color:var(--success-text);border-color:#9FD5C4}
 .yn-b.no.on{background:var(--danger-bg);color:var(--danger-text);border-color:#F5A49A}
 
+/* Demo highlight + speed */
+.demo-focus{outline:2px solid var(--accent)!important;outline-offset:2px;box-shadow:0 0 0 5px rgba(37,99,235,.15)!important;transition:box-shadow .15s}
+.demo-speed{display:inline-flex;gap:3px;align-items:center;margin-right:4px}
+.demo-speed button{font-size:10px;padding:4px 7px;border-radius:4px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.08);color:#fff;cursor:pointer;font-family:var(--font)}
+.demo-speed button.on{background:#fff;color:#111;font-weight:700}
+/* Deviation log */
+.dev-pill{font-size:9px;font-weight:600;padding:2px 7px;border-radius:4px;background:var(--warning-bg);color:var(--warning-text);white-space:nowrap}
+.dev-item{border:0.5px solid #F5C77E;background:var(--warning-bg);border-radius:var(--radius-sm);padding:9px 11px;margin-bottom:8px}
+.dev-item-h{font-size:12px;font-weight:600;color:var(--warning-text)}
+.dev-item-m{font-size:10px;color:var(--text-3);margin:2px 0 5px;line-height:1.5}
+.dev-item-b{font-size:11px;color:var(--text);line-height:1.55}
+.dev-missing{color:var(--danger);font-weight:600}
+.dev-box input[type=text]{margin-top:6px;font-size:11px;background:var(--surface)}
+.dev-empty{font-size:11px;color:var(--success);font-weight:500}
 /* Deviation */
 .dev-box{margin-top:6px;background:var(--danger-bg);border:0.5px solid #F5A49A;border-radius:var(--radius-sm);padding:9px 11px;animation:slideD .18s ease}
 @keyframes slideD{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:translateY(0)}}
@@ -274,8 +288,320 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 
 /* Session grid */
 .session-container{max-width:940px}
 
-/* Responsive */
-@media(max-width:800px){.sidebar{display:none}.grid2{grid-template-columns:1fr}}
+/* ═══ RESPONSIVE — three breakpoints ═══ */
+
+/* ── Tablet: 601–1024px — sidebar collapses to icon rail, toggleable ── */
+@media(max-width:1024px) and (min-width:601px){
+  .sidebar{width:60px;min-width:60px;transition:width .22s ease}
+  .sidebar.open{width:300px;min-width:300px;z-index:200;box-shadow:4px 0 20px rgba(0,0,0,.12)}
+  .sidebar:not(.open) .logo-sub,
+  .sidebar:not(.open) .logo-name,
+  .sidebar:not(.open) .site-switcher,
+  .sidebar:not(.open) .stat-strip,
+  .sidebar:not(.open) .section-label,
+  .sidebar:not(.open) .sc-meta,
+  .sidebar:not(.open) .sc-deadline,
+  .sidebar:not(.open) .sc-overdue,
+  .sidebar:not(.open) .sc-status,
+  .sidebar:not(.open) #session-list .sc-top span.sc-cyc,
+  .sidebar:not(.open) #session-list .sc-top span.sc-pid,
+  .sidebar:not(.open) #session-list div[style],
+  .sidebar:not(.open) .sidebar-scroll>div:last-child{display:none}
+  .sidebar:not(.open) .sc{margin:2px 6px;padding:8px;display:flex;align-items:center;justify-content:center}
+  .sidebar:not(.open) .sc-top{margin:0}
+  .sidebar:not(.open) .sc::after{content:attr(data-initials);font-size:10px;font-weight:700;color:var(--text-2)}
+  .sidebar-toggle{display:flex}
+  .grid2{grid-template-columns:1fr 1fr}
+  .grid3{grid-template-columns:1fr 1fr 1fr}
+  .main-scroll{padding:16px 18px}
+  .dash-kpi{grid-template-columns:repeat(2,1fr)}
+}
+
+/* ── Mobile: ≤600px — sidebar hidden, bottom nav bar ── */
+@media(max-width:600px){
+  .shell{flex-direction:column}
+  .sidebar{display:none!important}
+  .sidebar.drawer-open{
+    display:flex!important;position:fixed;top:0;left:0;height:100%;width:85%;max-width:320px;
+    z-index:500;box-shadow:4px 0 32px rgba(0,0,0,.18);
+    animation:drawerIn .22s ease
+  }
+  @keyframes drawerIn{from{transform:translateX(-100%)}to{transform:translateX(0)}}
+  .drawer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:499}
+  .drawer-overlay.show{display:block}
+  /* Use 100dvh so address bar doesn't overlap on iOS */
+  .main{height:calc(100dvh - 56px - env(safe-area-inset-bottom,0px))}
+  .bottom-nav{display:flex;padding-bottom:env(safe-area-inset-bottom,0px)}
+  .sidebar-toggle{display:none}
+
+  /* Collapse all multi-col grids to single column */
+  .grid2,.grid3,.row2,.row3,
+  .out-grid{grid-template-columns:1fr!important}
+
+  /* Haemocytometer stays 2-col — intentional, 4 cells */
+  .haemo-grid{grid-template-columns:1fr 1fr!important}
+
+  /* Tube grid — 3 per row on mobile (tubes 1,2,3 / 4,5 centre-aligned) */
+  .tube-grid{grid-template-columns:repeat(3,1fr)!important}
+
+  /* Dashboard KPI stays 2-col */
+  .dash-kpi{grid-template-columns:1fr 1fr!important}
+  .kpi-val{font-size:24px}
+
+  /* Content padding */
+  .main-scroll{padding:14px 14px calc(20px + env(safe-area-inset-bottom,0px)) 14px}
+  .main-header{padding:11px 14px;flex-wrap:wrap;gap:6px}
+  .main-title{font-size:13px}
+  .main-sub{font-size:10px}
+
+  /* Header action buttons — icon-only on mobile */
+  .h-actions{gap:5px}
+  .h-actions .btn{font-size:11px;padding:6px 9px}
+  .h-actions .btn .btn-hide{display:none}
+
+  /* Welcome screen — full bleed */
+  .welcome-wrap{padding:14px 0 80px;max-width:100%}
+  .welcome-card{border-radius:var(--radius);padding:18px 14px}
+  .welcome-title{font-size:17px}
+  .welcome-desc{font-size:12px}
+
+  /* Step progress — dots only, no labels */
+  .step-lbl{display:none}
+  .step-line{width:8px!important}
+  .step-dot{width:22px!important;height:22px!important;font-size:9px!important}
+  .steps{gap:0;margin-bottom:14px}
+
+  /* Form cards */
+  .session-container{max-width:100%}
+  .fc-body{padding:11px 12px}
+  .fc-header{padding:10px 12px 9px;flex-wrap:wrap;gap:4px}
+  .fc-title{font-size:12px}
+
+  /* Reagent table — hide expiry col, keep item + lot */
+  .rtable .exp-col{display:none}
+
+  /* Manifest table — horizontal scroll wrapper */
+  #mf-table{min-width:540px}
+  .form-card .fc-body{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+  /* Site switcher in drawer — full width */
+  .site-switcher{margin:8px 12px 0}
+
+  /* CTC grid stays 1-col */
+  #s7 .grid2{grid-template-columns:1fr!important}
+
+  /* Calc result text sizes */
+  .calc-val{font-size:12px}
+  .calc-big{font-size:16px}
+
+  /* Toast above bottom nav */
+  .toast{bottom:68px;right:10px;left:10px;max-width:100%;font-size:11px;padding:9px 12px}
+
+  /* Demo banner compact */
+  .demo-banner{padding:7px 12px}
+  .demo-banner-step{display:none}
+  .demo-banner-txt{font-size:11px}
+
+  /* Check rows — larger tap targets */
+  .ck-row{padding:10px 0}
+  .ck-lbl{font-size:11px;line-height:1.5}
+
+  /* Metric cards on card detail — 1 col */
+  .grid3{grid-template-columns:1fr!important}
+}
+
+/* ── Touch targets — all interactive elements min 44px on mobile ── */
+@media(max-width:600px){
+  .yn-b{padding:9px 16px;font-size:12px;min-height:36px}
+  input[type=text],input[type=number],input[type=time],input[type=date],
+  select,textarea{font-size:16px!important;padding:10px 11px;min-height:40px}
+  .btn{padding:10px 13px;font-size:12px;min-height:40px}
+  .sc{padding:13px 14px;min-height:44px}
+  .bnav-item{min-height:44px}
+  .tube-vis{width:100%;height:44px}
+}
+
+/* ══════════════════════════════════
+   OPTION C — MOBILE HOME SCREEN
+   ══════════════════════════════════ */
+
+/* Mobile view — hidden on desktop, activated by JS on mobile */
+#view-mobile-home{background:var(--bg);flex-direction:column}
+
+/* Mobile top bar */
+.mob-topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px 10px;
+  background:var(--surface);
+  border-bottom:0.5px solid var(--border);
+  flex-shrink:0;
+}
+.mob-topbar-left{display:flex;align-items:center;gap:8px}
+.mob-topbar-title{font-size:13px;font-weight:600;color:var(--text);letter-spacing:-.01em}
+.mob-topbar-site{font-size:10px;color:var(--text-3);font-weight:500}
+
+/* Scrollable body */
+.mob-home-scroll{
+  flex:1;min-height:0;overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  padding-bottom:calc(64px + env(safe-area-inset-bottom,0px));
+}
+
+/* Hero section */
+.mob-hero{
+  background:linear-gradient(160deg,#1348BB 0%,#1A56DB 60%,#2563EB 100%);
+  padding:20px 16px 24px;
+  margin-bottom:0;
+}
+.mob-hero-eyebrow{font-size:10px;font-weight:600;color:rgba(255,255,255,0.65);letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
+.mob-hero-title{font-size:20px;font-weight:700;color:#fff;letter-spacing:-.02em;margin-bottom:4px;line-height:1.2}
+.mob-hero-desc{font-size:12px;color:rgba(255,255,255,0.7);margin-bottom:16px;line-height:1.5}
+
+/* Scan box inside hero */
+.mob-scan-box{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:10px;padding:14px}
+.mob-scan-row{display:flex;gap:8px;align-items:stretch}
+.mob-scan-input{
+  flex:1;background:rgba(255,255,255,0.95);border:none;border-radius:7px;
+  font-family:var(--mono);font-size:15px;color:var(--text);padding:10px 12px;
+  outline:none;min-height:44px;
+}
+.mob-scan-input:focus{background:#fff;box-shadow:0 0 0 2px rgba(255,255,255,0.5)}
+.mob-scan-btn{
+  background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.35);
+  color:#fff;border-radius:7px;padding:0 14px;font-size:12px;font-weight:600;
+  cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;min-height:44px;
+  transition:background .12s;
+}
+.mob-scan-btn:hover{background:rgba(255,255,255,0.3)}
+.mob-scan-hint{font-size:10px;color:rgba(255,255,255,0.55);margin-top:8px}
+
+/* Cycle selector */
+.mob-cycle-row{margin-top:12px}
+.mob-cycle-row label{font-size:10px;font-weight:600;color:rgba(255,255,255,0.7);letter-spacing:.03em;display:block;margin-bottom:5px}
+.mob-cycle-sel{
+  width:100%;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);
+  color:#fff;border-radius:7px;padding:10px 12px;font-size:13px;
+  -webkit-appearance:none;outline:none;min-height:44px;
+}
+.mob-cycle-sel option{background:var(--text);color:#fff}
+
+/* Start + demo buttons */
+.mob-start-btn{
+  flex:1;min-height:48px;border-radius:10px;border:none;
+  background:rgba(255,255,255,0.95);color:var(--accent);
+  font-size:14px;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:7px;
+  transition:background .12s,opacity .12s;
+  letter-spacing:-.01em;
+}
+.mob-start-btn:disabled{opacity:0.45;cursor:not-allowed}
+.mob-start-btn:not(:disabled):hover{background:#fff}
+.mob-demo-btn{
+  min-height:48px;padding:0 18px;border-radius:10px;border:1px solid rgba(255,255,255,0.25);
+  background:rgba(255,255,255,0.12);color:rgba(255,255,255,0.9);
+  font-size:13px;font-weight:600;cursor:pointer;
+  display:flex;align-items:center;gap:6px;
+  transition:background .12s;
+}
+.mob-demo-btn:hover{background:rgba(255,255,255,0.2)}
+
+/* Section labels */
+.mob-section-label{
+  font-size:10px;font-weight:700;color:var(--text-3);letter-spacing:.07em;text-transform:uppercase;
+  padding:16px 16px 8px;
+}
+
+/* Quick action grid */
+.mob-quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px}
+.mob-quick-card{
+  background:var(--surface);border:0.5px solid var(--border);border-radius:12px;
+  padding:14px 12px 12px;display:flex;flex-direction:column;align-items:center;gap:8px;
+  cursor:pointer;transition:border-color .15s,box-shadow .15s;min-height:80px;
+  border:none;
+}
+.mob-quick-card:hover{box-shadow:0 0 0 2px var(--accent-bg);border-color:var(--accent)}
+.mob-quick-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center}
+.mob-quick-label{font-size:11px;font-weight:600;color:var(--text-2)}
+
+/* Stats strip */
+.mob-stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:0 16px}
+.mob-stat{background:var(--surface);border:0.5px solid var(--border);border-radius:8px;padding:10px 6px;text-align:center}
+.mob-stat-n{font-size:20px;font-weight:700;letter-spacing:-.03em;line-height:1}
+.mob-stat-l{font-size:9px;color:var(--text-3);margin-top:2px;font-weight:500}
+
+/* Recent session cards */
+.mob-sc{
+  display:flex;align-items:center;gap:12px;
+  padding:13px 16px;background:var(--surface);
+  border-bottom:0.5px solid var(--border);cursor:pointer;
+  transition:background .12s;
+}
+.mob-sc:hover{background:var(--surface-2)}
+.mob-sc-left{flex-shrink:0}
+.mob-sc-dot{width:8px;height:8px;border-radius:50%}
+.mob-sc-body{flex:1;min-width:0}
+.mob-sc-id{font-size:13px;font-weight:600;color:var(--text);font-family:var(--mono);margin-bottom:2px}
+.mob-sc-meta{font-size:11px;color:var(--text-3)}
+
+/* Patients drawer view on mobile */
+#view-patients{background:var(--bg)}
+.patients-header{padding:14px 16px;background:var(--surface);border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0}
+.patients-header-title{font-size:14px;font-weight:600;color:var(--text)}
+
+/* Bottom nav always at bottom, mobile only */
+.bottom-nav{
+  display:none;position:fixed;bottom:0;left:0;right:0;
+  height:calc(56px + env(safe-area-inset-bottom,0px));
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  background:var(--surface);border-top:0.5px solid var(--border);
+  z-index:400;
+}
+.bnav-inner{display:flex;height:56px;align-items:stretch}
+.bnav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  cursor:pointer;border:none;background:transparent;color:var(--text-3);
+  font-size:9px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;
+  transition:color .12s;padding:6px 0;font-family:var(--font);min-height:56px;
+}
+.bnav-item svg{stroke:currentColor}
+.bnav-item.active{color:var(--accent)}
+
+@media(max-width:600px){
+  .bottom-nav{display:flex}
+  /* Desktop welcome screen hidden on mobile, mobile home shown */
+  #view-welcome{display:none!important}
+}
+.sidebar-toggle{
+  display:none;position:absolute;top:14px;right:-14px;
+  width:28px;height:28px;border-radius:50%;
+  background:var(--surface);border:0.5px solid var(--border);
+  align-items:center;justify-content:center;cursor:pointer;
+  box-shadow:0 1px 4px rgba(0,0,0,.1);z-index:10;transition:transform .22s
+}
+.sidebar-toggle svg{width:13px;height:13px;color:var(--text-2);transition:transform .22s}
+.sidebar.open .sidebar-toggle svg{transform:rotate(180deg)}
+.sidebar-header{position:relative}
+
+/* ── Bottom nav — mobile only ── */
+.bottom-nav{
+  display:none;position:fixed;bottom:0;left:0;right:0;height:56px;
+  background:var(--surface);border-top:0.5px solid var(--border);
+  z-index:400;padding:0 env(safe-area-inset-right,0) env(safe-area-inset-bottom,0) env(safe-area-inset-left,0)
+}
+.bnav-inner{display:flex;height:56px;align-items:stretch}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;border:none;background:transparent;color:var(--text-3);font-size:9px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;transition:color .12s;padding:6px 0;font-family:var(--font)}
+.bnav-item.active{color:var(--accent)}
+.bnav-item svg{width:20px;height:20px;flex-shrink:0}
+.bnav-item.active svg{stroke:var(--accent)}
+
+/* ── Tablet grid refinements ── */
+@media(max-width:1024px) and (min-width:601px){
+  .tube-grid{grid-template-columns:repeat(5,1fr)}
+  .haemo-grid{grid-template-columns:repeat(4,1fr)}
+  #s7 .grid2{grid-template-columns:1fr 1fr}
+  .dash-kpi{grid-template-columns:repeat(2,1fr)}
+  .kpi-val{font-size:28px}
+}
 </style>
 </head>
 <body>
@@ -294,6 +620,12 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 
       </div>
     </div>
     <div class="logo-sub">QIMR Berghofer × Apollo HealthAxis</div>
+    <!-- Tablet toggle -->
+    <button class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Toggle sidebar">
+      <svg viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+        <path d="M8 2L4 6.5L8 11"/>
+      </svg>
+    </button>
     <div class="site-switcher">
       <div class="site-btn active" onclick="switchSite(this,'201')">Hyd</div>
       <div class="site-btn" onclick="switchSite(this,'202')">Chen</div>
@@ -353,11 +685,11 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 
     </div>
 
     <div style="padding:10px 10px 0">
-      <button class="btn primary" style="width:100%;justify-content:center" onclick="showView('welcome')">
+      <button class="btn primary" style="width:100%;justify-content:center" onclick="window.innerWidth<=600?mobileNav('welcome'):showView('welcome')">
         <svg viewBox="0 0 13 13" fill="none"><path d="M6.5 1v11M1 6.5h11" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
         New processing session
       </button>
-      <button class="btn" style="width:100%;justify-content:center;margin-top:6px" onclick="showView('dashboard')">
+      <button class="btn" style="width:100%;justify-content:center;margin-top:6px" onclick="window.innerWidth<=600?mobileNav('dashboard'):showView('dashboard')">
         <svg viewBox="0 0 13 13" fill="none"><rect x="1" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="7" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="1" y="7" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="7" y="7" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/></svg>
         Central dashboard
       </button>
@@ -375,34 +707,46 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 
       <div class="demo-banner-step" id="demo-step-desc">Starting session…</div>
     </div>
     <div style="display:flex;gap:8px;align-items:center">
+      <div class="demo-speed" id="demo-speed"><button onclick="setDemoSpeed(0.5)">0.5×</button><button class="on" onclick="setDemoSpeed(1)">1×</button><button onclick="setDemoSpeed(2)">2×</button><button onclick="setDemoSpeed(4)">4×</button></div>
       <button class="btn" style="font-size:11px;padding:5px 10px;color:#fff;border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.1)" onclick="stopDemo()">Stop demo</button>
     </div>
   </div>
   <div class="demo-progress" id="demo-progress" style="display:none"><div class="demo-progress-bar" id="demo-bar" style="width:0%"></div></div>
 
-  <!-- ── Welcome ── -->
-  <div id="view-welcome" class="view active main-scroll">
-    <div class="welcome-wrap">
-      <div class="welcome-card">
-        <div class="welcome-icon">
-          <svg viewBox="0 0 26 26" fill="none"><path d="M3 6h20M3 13h20M3 20h20" stroke="white" stroke-width="2" stroke-linecap="round"/><rect x="8" y="3" width="3" height="6" rx="1" fill="white"/><rect x="15" y="10" width="3" height="6" rx="1" fill="white"/><rect x="8" y="17" width="3" height="6" rx="1" fill="white"/></svg>
+  <!-- ── Option C: Mobile home screen (hidden on desktop/tablet, shown on mobile) ── -->
+  <div id="view-mobile-home" class="view">
+    <!-- Mobile top bar -->
+    <div class="mob-topbar">
+      <div class="mob-topbar-left">
+        <div class="logo-mark" style="width:24px;height:24px;border-radius:6px;flex-shrink:0">
+          <svg viewBox="0 0 14 14" fill="none"><path d="M7 1L13 4.5V9.5L7 13L1 9.5V4.5L7 1Z" stroke="white" stroke-width="1.3" stroke-linejoin="round"/><circle cx="7" cy="7" r="2" fill="white"/></svg>
         </div>
-        <div class="welcome-title">New processing session</div>
-        <div class="welcome-desc">Scan the patient barcode to begin. Patient details, site, cycle and run ID populate automatically.</div>
+        <span class="mob-topbar-title">PAX-PLUS Tracker</span>
+      </div>
+      <span class="mob-topbar-site" id="mob-site-label">Site 201 · Hyd</span>
+    </div>
+    <!-- Scrollable home content -->
+    <div class="mob-home-scroll">
 
-        <div class="scan-area">
-          <div class="scan-lbl">Scan patient barcode</div>
-          <div class="barcode-svg" id="barcode-vis"></div>
-          <div class="scan-row">
-            <input type="text" id="barcode-in" class="f-scan" placeholder="201-001  or scan barcode…" maxlength="20">
-            <button class="btn primary" onclick="doScan()">Scan</button>
+      <!-- Hero — scan to start -->
+      <div class="mob-hero">
+        <div class="mob-hero-eyebrow">New processing session</div>
+        <div class="mob-hero-title">Scan patient barcode</div>
+        <div class="mob-hero-desc">Point camera at the data-matrix barcode on the tube, or type the patient ID below.</div>
+        <div class="mob-scan-box">
+          <div class="barcode-svg" id="barcode-vis" style="margin-bottom:10px"></div>
+          <div class="mob-scan-row">
+            <input type="text" id="barcode-in" class="f-scan mob-scan-input" placeholder="e.g. 201-001" maxlength="20" autocomplete="off" autocorrect="off" spellcheck="false">
+            <button class="btn primary mob-scan-btn" onclick="doScan()">
+              <svg viewBox="0 0 14 14" fill="none" width="14" height="14"><rect x="1" y="1" width="4" height="4" rx="0.5" stroke="white" stroke-width="1.2"/><rect x="9" y="1" width="4" height="4" rx="0.5" stroke="white" stroke-width="1.2"/><rect x="1" y="9" width="4" height="4" rx="0.5" stroke="white" stroke-width="1.2"/><path d="M9 9h1.5M11.5 9H13M13 9v1.5M13 11.5V13M13 13h-1.5M11.5 13H9" stroke="white" stroke-width="1.2" stroke-linecap="round"/></svg>
+              Scan
+            </button>
           </div>
-          <div class="scan-hint">Demo values: 201-001 · 201-002 · 201-004</div>
+          <div class="mob-scan-hint">Try: 201-001 · 201-002 · 201-004</div>
         </div>
-
-        <div class="row">
-          <label>Cycle / Day</label>
-          <select id="cycle-sel">
+        <div class="mob-cycle-row">
+          <label style="color:rgba(255,255,255,0.7);margin-bottom:5px">Cycle / Day</label>
+          <select id="cycle-sel" class="mob-cycle-sel">
             <option value="C1D1">C1D1 — Cycle 1, Day 1</option>
             <option value="C2D1">C2D1</option><option value="C3D1">C3D1</option>
             <option value="C4D1">C4D1</option><option value="C5D1">C5D1</option>
@@ -412,9 +756,117 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 
             <option value="EOT">End of treatment / early termination</option>
           </select>
         </div>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button class="mob-start-btn" id="start-btn" disabled onclick="startSession()">
+            <svg viewBox="0 0 14 14" fill="none" width="15" height="15"><path d="M7 1L13 4.5V9.5L7 13L1 9.5V4.5L7 1Z" stroke="white" stroke-width="1.3" stroke-linejoin="round"/><circle cx="7" cy="7" r="2" fill="white"/></svg>
+            Start session
+          </button>
+          <button class="mob-demo-btn" onclick="runDemo()">
+            <svg viewBox="0 0 14 14" fill="none" width="14" height="14"><polygon points="3,2 12,7 3,12" fill="white"/></svg>
+            Demo
+          </button>
+        </div>
+      </div>
 
+      <!-- Quick actions grid -->
+      <div class="mob-section-label">Quick actions</div>
+      <div class="mob-quick-grid">
+        <button class="mob-quick-card" onclick="mobileNav('patients')">
+          <div class="mob-quick-icon" style="background:var(--success-bg)">
+            <svg viewBox="0 0 18 18" fill="none" width="18" height="18"><circle cx="7" cy="6" r="3" stroke="var(--success)" stroke-width="1.3"/><path d="M1 16c0-3.31 2.69-6 6-6" stroke="var(--success)" stroke-width="1.3" stroke-linecap="round"/><path d="M13 10v6M10 13h6" stroke="var(--success)" stroke-width="1.3" stroke-linecap="round"/></svg>
+          </div>
+          <span class="mob-quick-label">Patients</span>
+        </button>
+        <button class="mob-quick-card" onclick="mobileNav('dashboard')">
+          <div class="mob-quick-icon" style="background:var(--accent-bg)">
+            <svg viewBox="0 0 18 18" fill="none" width="18" height="18"><rect x="2" y="2" width="6" height="6" rx="1" stroke="var(--accent)" stroke-width="1.3"/><rect x="10" y="2" width="6" height="6" rx="1" stroke="var(--accent)" stroke-width="1.3"/><rect x="2" y="10" width="6" height="6" rx="1" stroke="var(--accent)" stroke-width="1.3"/><rect x="10" y="10" width="6" height="6" rx="1" stroke="var(--accent)" stroke-width="1.3"/></svg>
+          </div>
+          <span class="mob-quick-label">Dashboard</span>
+        </button>
+        <button class="mob-quick-card" onclick="mobileNav('manifest')">
+          <div class="mob-quick-icon" style="background:var(--purple-bg)">
+            <svg viewBox="0 0 18 18" fill="none" width="18" height="18"><rect x="3" y="1" width="12" height="16" rx="2" stroke="var(--purple)" stroke-width="1.3"/><path d="M6 6h6M6 9h6M6 12h4" stroke="var(--purple)" stroke-width="1.3" stroke-linecap="round"/></svg>
+          </div>
+          <span class="mob-quick-label">Manifest</span>
+        </button>
+        <button class="mob-quick-card" onclick="mobileNav('dashboard')">
+          <div class="mob-quick-icon" style="background:var(--warning-bg)" id="mob-overdue-tile">
+            <svg viewBox="0 0 18 18" fill="none" width="18" height="18"><circle cx="9" cy="9" r="7" stroke="var(--warning)" stroke-width="1.3"/><path d="M9 5v4.5M9 11.5v1" stroke="var(--warning)" stroke-width="1.3" stroke-linecap="round"/></svg>
+          </div>
+          <span class="mob-quick-label" style="color:var(--warning)">1 overdue</span>
+        </button>
+      </div>
+
+      <!-- Stats strip -->
+      <div class="mob-section-label">This week · Site <span id="mob-stat-site">201</span></div>
+      <div class="mob-stats-row">
+        <div class="mob-stat"><div class="mob-stat-n" style="color:var(--accent)" id="mob-stat-active">1</div><div class="mob-stat-l">Processing</div></div>
+        <div class="mob-stat"><div class="mob-stat-n" style="color:var(--success)" id="mob-stat-stored">4</div><div class="mob-stat-l">Stored</div></div>
+        <div class="mob-stat"><div class="mob-stat-n" style="color:var(--warning)" id="mob-stat-due">2</div><div class="mob-stat-l">Ship due</div></div>
+        <div class="mob-stat"><div class="mob-stat-n" style="color:var(--purple)" id="mob-stat-shipped">1</div><div class="mob-stat-l">Shipped</div></div>
+      </div>
+
+      <!-- Recent sessions -->
+      <div class="mob-section-label">Recent sessions</div>
+      <div id="mob-recent-list">
+        <div class="mob-sc" onclick="openStoredCard(null,'201-012','C2D1','overdue',3,6,2,null,null)">
+          <div class="mob-sc-left"><div class="mob-sc-dot" style="background:var(--danger)"></div></div>
+          <div class="mob-sc-body"><div class="mob-sc-id">201-012 · C2D1</div><div class="mob-sc-meta">Shipment overdue — action required</div></div>
+          <svg viewBox="0 0 12 12" fill="none" width="12" height="12" style="flex-shrink:0;opacity:0.4"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="mob-sc" onclick="openStoredCard(null,'201-007','C1D1','stored',3,5,2,'26 Sep','4 days')">
+          <div class="mob-sc-left"><div class="mob-sc-dot" style="background:var(--success)"></div></div>
+          <div class="mob-sc-body"><div class="mob-sc-id">201-007 · C1D1</div><div class="mob-sc-meta">Stored · Ship by 26 Sep</div></div>
+          <svg viewBox="0 0 12 12" fill="none" width="12" height="12" style="flex-shrink:0;opacity:0.4"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="mob-sc" onclick="openStoredCard(null,'201-003','C3D1','stored',3,8,2,'25 Sep','3 days')">
+          <div class="mob-sc-left"><div class="mob-sc-dot" style="background:var(--success)"></div></div>
+          <div class="mob-sc-body"><div class="mob-sc-id">201-003 · C3D1</div><div class="mob-sc-meta">Stored · Ship by 25 Sep</div></div>
+          <svg viewBox="0 0 12 12" fill="none" width="12" height="12" style="flex-shrink:0;opacity:0.4"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div id="mob-active-sc" class="mob-sc" style="display:none" onclick="showView('session')">
+          <div class="mob-sc-left"><div class="mob-sc-dot" style="background:var(--accent);animation:pulse 1.4s infinite"></div></div>
+          <div class="mob-sc-body"><div class="mob-sc-id" id="mob-active-id">—</div><div class="mob-sc-meta">Processing now — tap to continue</div></div>
+          <svg viewBox="0 0 12 12" fill="none" width="12" height="12" style="flex-shrink:0;opacity:0.4"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+
+      <div style="height:80px"></div><!-- bottom nav spacer -->
+    </div>
+  </div>
+
+  <!-- ── Welcome (desktop only — hidden on mobile) ── -->
+  <div id="view-welcome" class="view active main-scroll">
+    <div class="welcome-wrap">
+      <div class="welcome-card">
+        <div class="welcome-icon">
+          <svg viewBox="0 0 26 26" fill="none"><path d="M3 6h20M3 13h20M3 20h20" stroke="white" stroke-width="2" stroke-linecap="round"/><rect x="8" y="3" width="3" height="6" rx="1" fill="white"/><rect x="15" y="10" width="3" height="6" rx="1" fill="white"/><rect x="8" y="17" width="3" height="6" rx="1" fill="white"/></svg>
+        </div>
+        <div class="welcome-title">New processing session</div>
+        <div class="welcome-desc">Scan the patient barcode to begin. Patient details, site, cycle and run ID populate automatically.</div>
+        <div class="scan-area">
+          <div class="scan-lbl">Scan patient barcode</div>
+          <div class="barcode-svg" id="barcode-vis-desk"></div>
+          <div class="scan-row">
+            <input type="text" id="barcode-in-desk" class="f-scan" placeholder="201-001  or scan barcode…" maxlength="20">
+            <button class="btn primary" onclick="doScanDesk()">Scan</button>
+          </div>
+          <div class="scan-hint">Demo values: 201-001 · 201-002 · 201-004</div>
+        </div>
+        <div class="row">
+          <label>Cycle / Day</label>
+          <select id="cycle-sel-desk">
+            <option value="C1D1">C1D1 — Cycle 1, Day 1</option>
+            <option value="C2D1">C2D1</option><option value="C3D1">C3D1</option>
+            <option value="C4D1">C4D1</option><option value="C5D1">C5D1</option>
+            <option value="C7D1">C7D1</option><option value="C9D1">C9D1</option>
+            <option value="C11D1">C11D1</option><option value="C13D1">C13D1</option>
+            <option value="C15D1">C15D1</option><option value="C17D1">C17D1</option>
+            <option value="EOT">End of treatment / early termination</option>
+          </select>
+        </div>
         <div style="display:flex;gap:8px">
-          <button class="btn primary" style="flex:1;justify-content:center;padding:10px" onclick="startSession()" id="start-btn" disabled>Start session</button>
+          <button class="btn primary" style="flex:1;justify-content:center;padding:10px" onclick="startSessionDesk()" id="start-btn-desk" disabled>Start session</button>
           <button class="btn demo-btn" style="justify-content:center;padding:10px 16px" onclick="runDemo()">
             <svg viewBox="0 0 13 13" fill="none" width="13" height="13"><polygon points="2,1 12,6.5 2,12" fill="white"/></svg>
             Run demo
@@ -432,10 +884,13 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 
         <div class="main-sub" id="sess-sub">WS-I-003A · WS-I-003B · Apollo Hyderabad</div>
       </div>
       <div class="h-actions">
-        <button class="btn" onclick="showView('welcome')">← Back</button>
+        <button class="btn" onclick="showView('welcome')">
+          <svg viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M8 2L4 6.5L8 11"/></svg>
+          <span class="btn-hide">Back</span>
+        </button>
         <button class="btn success-btn" onclick="completeSession()">
           <svg viewBox="0 0 13 13" fill="none"><path d="M2 6.5l3.5 3.5 5.5-5.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Complete session
+          <span class="btn-hide">Complete</span> session
         </button>
       </div>
     </div>
@@ -539,16 +994,16 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 
           <div class="fc-header"><div class="fc-title">Reagent &amp; consumable lot tracking</div><span class="fc-badge b-003a">WS-003A §3</span></div>
           <div class="fc-body" style="padding:0 18px 14px">
             <table class="rtable">
-              <thead><tr><th>Item</th><th>Lot / batch no.</th><th>Expiry date</th></tr></thead>
+              <thead><tr><th>Item</th><th>Lot / batch no.</th><th class="exp-col">Expiry date</th></tr></thead>
               <tbody>
-                <tr><td style="color:var(--text-2)">Lymphoprep</td><td><input type="text" id="rl-lymph" placeholder="e.g. LN240901"></td><td><input type="date" id="re-lymph"></td></tr>
-                <tr><td style="color:var(--text-2)">SepMate IVD-50 (×2)</td><td><input type="text" id="rl-sep" placeholder="e.g. SM241001"></td><td><input type="date" id="re-sep"></td></tr>
-                <tr><td style="color:var(--text-2)">Dulbecco's PBS</td><td><input type="text" id="rl-pbs" placeholder="e.g. PB240715"></td><td><input type="date" id="re-pbs"></td></tr>
-                <tr><td style="color:var(--text-2)">FBS aliquot</td><td><input type="text" id="rl-fbs" placeholder="e.g. FBS2401"></td><td><input type="date" id="re-fbs"></td></tr>
-                <tr><td style="color:var(--text-2)">RPMI-1640</td><td><input type="text" id="rl-rpm" placeholder="e.g. RP240801"></td><td><input type="date" id="re-rpm"></td></tr>
-                <tr><td style="color:var(--text-2)">RBC Lysis Buffer</td><td><input type="text" id="rl-rbc" placeholder="e.g. RBC2409"></td><td><input type="date" id="re-rbc"></td></tr>
-                <tr><td style="color:var(--text-2)">Trypan Blue</td><td><input type="text" id="rl-try" placeholder="e.g. TB240601"></td><td><input type="date" id="re-try"></td></tr>
-                <tr><td style="color:var(--text-2)">DMSO (sterile)</td><td><input type="text" id="rl-dms" placeholder="e.g. DM240901"></td><td><input type="date" id="re-dms"></td></tr>
+                <tr><td style="color:var(--text-2)">Lymphoprep</td><td><input type="text" id="rl-lymph" placeholder="e.g. LN240901"></td><td class="exp-col"><input type="date" id="re-lymph"></td></tr>
+                <tr><td style="color:var(--text-2)">SepMate IVD-50 (×2)</td><td><input type="text" id="rl-sep" placeholder="e.g. SM241001"></td><td class="exp-col"><input type="date" id="re-sep"></td></tr>
+                <tr><td style="color:var(--text-2)">Dulbecco's PBS</td><td><input type="text" id="rl-pbs" placeholder="e.g. PB240715"></td><td class="exp-col"><input type="date" id="re-pbs"></td></tr>
+                <tr><td style="color:var(--text-2)">FBS aliquot</td><td><input type="text" id="rl-fbs" placeholder="e.g. FBS2401"></td><td class="exp-col"><input type="date" id="re-fbs"></td></tr>
+                <tr><td style="color:var(--text-2)">RPMI-1640</td><td><input type="text" id="rl-rpm" placeholder="e.g. RP240801"></td><td class="exp-col"><input type="date" id="re-rpm"></td></tr>
+                <tr><td style="color:var(--text-2)">RBC Lysis Buffer</td><td><input type="text" id="rl-rbc" placeholder="e.g. RBC2409"></td><td class="exp-col"><input type="date" id="re-rbc"></td></tr>
+                <tr><td style="color:var(--text-2)">Trypan Blue</td><td><input type="text" id="rl-try" placeholder="e.g. TB240601"></td><td class="exp-col"><input type="date" id="re-try"></td></tr>
+                <tr><td style="color:var(--text-2)">DMSO (sterile)</td><td><input type="text" id="rl-dms" placeholder="e.g. DM240901"></td><td class="exp-col"><input type="date" id="re-dms"></td></tr>
               </tbody>
             </table>
           </div>
@@ -754,6 +1209,10 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 
               <div style="font-size:11px;font-weight:600;color:var(--text-2);margin-bottom:8px">Processing timeline</div>
               <div class="timeline" id="card-timeline"></div>
             </div>
+            <div id="card-devlog-wrap" style="margin-top:16px">
+              <div style="font-size:11px;font-weight:600;color:var(--text-2);margin-bottom:8px">Deviation log</div>
+              <div id="card-devlog"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -765,7 +1224,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 
     <div class="main-header">
       <div>
         <div class="main-title">Central dashboard</div>
-        <div class="main-sub">All sites · PAX-PLUS trial · 22 Sep 2026</div>
+        <div class="main-sub">All sites · PAX-PLUS trial · <span id="dash-date">22 Sep 2026</span></div>
       </div>
       <div class="h-actions">
         <button class="btn primary" onclick="showView('manifest')">Generate weekly manifest</button>
@@ -809,6 +1268,10 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 
           </div>
         </div>
 
+        <div class="form-card" id="dash-dev-card">
+          <div class="fc-header"><div class="fc-title">Deviations requiring review</div><span class="dev-pill" id="dash-dev-count">0</span></div>
+          <div class="fc-body" style="padding:0" id="dash-devs"></div>
+        </div>
         <div class="form-card">
           <div class="fc-header"><div class="fc-title">Samples due for shipment this week</div><button class="btn primary" style="font-size:11px;padding:5px 11px" onclick="showView('manifest')">Generate manifest</button></div>
           <div class="fc-body" style="padding:0">
@@ -865,11 +1328,30 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 
         </div>
         <div class="form-card">
           <div class="fc-header"><div class="fc-title">Sample manifest</div><span style="font-size:10px;color:var(--success-text);font-weight:500">All fields auto-populated from session records — zero re-entry</span></div>
-          <div class="fc-body" style="padding:0;overflow-x:auto">
+          <div class="fc-body" style="padding:0">
+            <div class="mtable-wrap" style="overflow-x:auto;-webkit-overflow-scrolling:touch">
             <table class="mtable" id="mf-table">
-              <thead><tr><th>Patient ID</th><th>Cycle</th><th>Sample type</th><th>Vial / filter ID</th><th>Box / storage ID</th><th>Processed</th><th>Ship temp</th><th>Include</th></tr></thead>
+              <thead><tr><th>Patient ID</th><th>Cycle</th><th>Sample type</th><th>Vial / filter ID</th><th>Box / storage ID</th><th>Processed</th><th>Ship temp</th><th>Deviations</th><th>Include</th></tr></thead>
               <tbody id="mf-tbody"></tbody>
             </table>
+            </div>
+          </div>
+        </div>
+        <div class="form-card" id="mf-dev-card">
+          <div class="fc-header"><div class="fc-title">Deviations log</div><span class="fc-badge b-mf">SM-I-001 §6</span></div>
+          <div class="fc-body">
+            <div style="font-size:11px;color:var(--text-2);margin-bottom:10px" id="mf-dev-sum">—</div>
+            <div id="mf-devlog"></div>
+            <div style="margin-top:12px;padding-top:10px;border-top:0.5px solid var(--border)">
+              <div style="font-size:11px;font-weight:600;color:var(--text-2);margin-bottom:6px">Add shipment-level deviation</div>
+              <div class="row2">
+                <div><label>Sample / vial ID</label><input type="text" id="mf-dv-sample" placeholder="e.g. PLM-003 or leave blank"></div>
+                <div><label>Notified (Y/N, whom)</label><input type="text" id="mf-dv-not" placeholder="e.g. Y — Study coordinator"></div>
+              </div>
+              <div class="row"><label>Deviation description</label><input type="text" id="mf-dv-desc" placeholder="e.g. Temperature logger reading out of range"></div>
+              <div class="row"><label>Corrective action</label><input type="text" id="mf-dv-act" placeholder="Action taken"></div>
+              <button class="btn" style="margin-top:6px" onclick="addMfDev()">+ Add deviation</button>
+            </div>
           </div>
         </div>
         <div class="form-card">
@@ -890,13 +1372,101 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 
     </div>
   </div>
 
+  <!-- ── Patients view (mobile only — shows session list) ── -->
+  <div id="view-patients" class="view" style="flex-direction:column">
+    <div class="patients-header">
+      <div class="logo-mark" style="width:22px;height:22px;border-radius:5px;flex-shrink:0">
+        <svg viewBox="0 0 14 14" fill="none"><path d="M7 1L13 4.5V9.5L7 13L1 9.5V4.5L7 1Z" stroke="white" stroke-width="1.3" stroke-linejoin="round"/><circle cx="7" cy="7" r="2" fill="white"/></svg>
+      </div>
+      <div class="patients-header-title">All patient sessions</div>
+    </div>
+    <div class="main-scroll" style="padding:0">
+      <!-- stat strip -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:14px 14px 10px">
+        <div class="mob-stat"><div class="mob-stat-n" style="color:var(--accent)" id="pts-active">1</div><div class="mob-stat-l">Active</div></div>
+        <div class="mob-stat"><div class="mob-stat-n" style="color:var(--success)" id="pts-stored">4</div><div class="mob-stat-l">Stored</div></div>
+        <div class="mob-stat"><div class="mob-stat-n" style="color:var(--warning)" id="pts-due">2</div><div class="mob-stat-l">Ship due</div></div>
+      </div>
+      <!-- session list mirrors sidebar -->
+      <div style="font-size:10px;font-weight:700;color:var(--text-3);letter-spacing:.07em;text-transform:uppercase;padding:4px 14px 8px">Patient sessions · Site 201</div>
+      <div class="mob-sc" onclick="mobileOpenCard('201-012','C2D1','overdue',3,6,2,null,null)">
+        <div class="mob-sc-left"><div class="mob-sc-dot" style="background:var(--danger)"></div></div>
+        <div class="mob-sc-body"><div class="mob-sc-id">201-012 · C2D1</div><div class="mob-sc-meta" style="color:var(--danger)">Shipment overdue — action required</div></div>
+        <svg viewBox="0 0 12 12" fill="none" width="12" height="12" style="flex-shrink:0;opacity:0.4"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="mob-sc" onclick="mobileOpenCard('201-003','C3D1','stored',3,8,2,'25 Sep','3 days')">
+        <div class="mob-sc-left"><div class="mob-sc-dot" style="background:var(--success)"></div></div>
+        <div class="mob-sc-body"><div class="mob-sc-id">201-003 · C3D1</div><div class="mob-sc-meta">Stored · Ship by 25 Sep — 3 days</div></div>
+        <svg viewBox="0 0 12 12" fill="none" width="12" height="12" style="flex-shrink:0;opacity:0.4"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="mob-sc" onclick="mobileOpenCard('201-007','C1D1','stored',3,5,2,'26 Sep','4 days')">
+        <div class="mob-sc-left"><div class="mob-sc-dot" style="background:var(--success)"></div></div>
+        <div class="mob-sc-body"><div class="mob-sc-id">201-007 · C1D1</div><div class="mob-sc-meta">Stored · Ship by 26 Sep — 4 days</div></div>
+        <svg viewBox="0 0 12 12" fill="none" width="12" height="12" style="flex-shrink:0;opacity:0.4"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="mob-sc" onclick="mobileOpenCard('201-011','C2D1','shipped',3,6,2,null,null)">
+        <div class="mob-sc-left"><div class="mob-sc-dot" style="background:var(--purple)"></div></div>
+        <div class="mob-sc-body"><div class="mob-sc-id">201-011 · C2D1</div><div class="mob-sc-meta">Shipped · AWB SQ-4872-HYD</div></div>
+        <svg viewBox="0 0 12 12" fill="none" width="12" height="12" style="flex-shrink:0;opacity:0.4"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="mob-sc" onclick="mobileOpenCard('201-008','C4D1','received',3,7,2,null,null)">
+        <div class="mob-sc-left"><div class="mob-sc-dot" style="background:#059669"></div></div>
+        <div class="mob-sc-body"><div class="mob-sc-id">201-008 · C4D1</div><div class="mob-sc-meta">Received at QIMR</div></div>
+        <svg viewBox="0 0 12 12" fill="none" width="12" height="12" style="flex-shrink:0;opacity:0.4"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div id="mob-pts-active-sc" class="mob-sc" style="display:none" onclick="showView('session')">
+        <div class="mob-sc-left"><div class="mob-sc-dot" style="background:var(--accent);animation:pulse 1.4s infinite"></div></div>
+        <div class="mob-sc-body"><div class="mob-sc-id" id="mob-pts-active-id">—</div><div class="mob-sc-meta" style="color:var(--accent)">Processing now — tap to continue</div></div>
+        <svg viewBox="0 0 12 12" fill="none" width="12" height="12" style="flex-shrink:0;opacity:0.4"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div style="height:72px"></div>
+    </div>
+  </div>
+
 </div><!-- /main -->
 </div><!-- /shell -->
+
+<!-- Drawer overlay — patients drawer on mobile -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+
+<!-- Mobile bottom nav — 4 tabs, shown only on mobile -->
+<nav class="bottom-nav" id="mobile-bottom-nav" role="navigation" aria-label="Main navigation">
+  <div class="bnav-inner">
+    <button class="bnav-item active" id="bn-home" onclick="mobileNav('mobile-home')" aria-label="Home">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+        <path d="M3 9.5L10 3l7 6.5"/><path d="M6 9.5V17h3v-4h2v4h3V9.5"/>
+      </svg>
+      Home
+    </button>
+    <button class="bnav-item" id="bn-patients" onclick="mobileNav('patients')" aria-label="Patients">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+        <circle cx="8" cy="7" r="3"/><path d="M2 18c0-3.31 2.69-6 6-6"/><circle cx="15" cy="13" r="3"/><path d="M12 13h6M15 10v6"/>
+      </svg>
+      Patients
+    </button>
+    <button class="bnav-item" id="bn-dash" onclick="mobileNav('dashboard')" aria-label="Dashboard">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+        <rect x="2" y="2" width="7" height="7" rx="1"/><rect x="11" y="2" width="7" height="7" rx="1"/>
+        <rect x="2" y="11" width="7" height="7" rx="1"/><rect x="11" y="11" width="7" height="7" rx="1"/>
+      </svg>
+      Dashboard
+    </button>
+    <button class="bnav-item" id="bn-manifest" onclick="mobileNav('manifest')" aria-label="Manifest">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+        <rect x="4" y="2" width="12" height="16" rx="2"/><path d="M8 7h4M8 11h4M8 15h2"/>
+      </svg>
+      Manifest
+    </button>
+  </div>
+</nav>
 
 <script>
 // ─── State ───
 const SITES={201:'Apollo Hyderabad',202:'Apollo Chennai',203:'Apollo Delhi',204:'Apollo Bangalore'};
 let S={};let demoTimer=null;let toastEl=null;
+const DEVLOG={};
+const SHIPKEY='shipment|SM-I-001';
+const INVERT=new Set(['buffy','fi']);   // for these questions, answering "Y" is the deviation
 
 // ─── Init ───
 buildBarcode();
@@ -923,7 +1493,9 @@ function doScan(){
 }
 
 function startSession(prefill){
-  const pid=prefill||S.patientId||document.getElementById('barcode-in').value.trim();
+  const mobVal=(document.getElementById('barcode-in')?.value||'').trim();
+  const deskVal=(document.getElementById('barcode-in-desk')?.value||'').trim();
+  const pid=prefill||S.patientId||mobVal||deskVal;
   if(!pid){toast('Scan a barcode first');return;}
   const cycle=document.getElementById('cycle-sel').value;
   const siteId=S.siteId||'201';const siteName=SITES[siteId]||'Apollo Hyderabad';
@@ -931,7 +1503,7 @@ function startSession(prefill){
   const dateStr=now.getFullYear()+String(now.getMonth()+1).padStart(2,'0')+String(now.getDate()).padStart(2,'0');
   const runId=siteId+'-'+dateStr+'-001A';
   const tsNow=nowTs();
-  S={...S,patientId:pid,cycle,siteId,siteName,runId,startTs:tsNow};
+  S={...S,patientId:pid,cycle,siteId,siteName,runId,startTs:tsNow,ev:{start:Date.now()}};
   // Fill form
   setV('f-pid',pid);setV('f-cyc',cycle);setV('f-site',siteId+' — '+siteName);
   setV('f-runid',runId);setV('f-ts-start',tsNow);
@@ -952,7 +1524,13 @@ function startSession(prefill){
 
 function completeSession(){
   if(!S.patientId){toast('No active session');return;}
-  S.completedTs=nowTs();S.completed=true;
+  const _open=(DEVLOG[devKey()]||[]).filter(d=>!d.action.trim()||!d.notified.trim());
+  if(_open.length){
+    toast('Document corrective action and who was notified for '+_open.length+' deviation'+(_open.length>1?'s':'')+' before sign-off');
+    document.querySelector('.dev-box[data-dev="'+_open[0].key+'"]')?.scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+  S.completedTs=nowTs();S.completed=true;S.ev=S.ev||{};S.ev.done=Date.now();
   document.getElementById('active-card').style.display='none';
   const storedN=parseInt(document.getElementById('sb-stored').textContent)||4;
   document.getElementById('sb-stored').textContent=storedN+1;
@@ -970,7 +1548,8 @@ function completeSession(){
   feed.insertBefore(item,feed.firstChild);
 
   toast('Session complete — status: Stored','success');
-  setTimeout(()=>{openCard(S.patientId,S.cycle,'stored',S._plasma,S._pbmc,2,'29 Sep','7 days');},900);
+  const _dl=new Date(Date.now()+7*864e5).toLocaleDateString('en-GB',{day:'2-digit',month:'short'});
+  setTimeout(()=>{openCard(S.patientId,S.cycle,'stored',S._plasma,S._pbmc,2,_dl,'7 days');},900);
 }
 
 // ─── Views ───
@@ -978,6 +1557,7 @@ function showView(v){
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
   document.getElementById('view-'+v).classList.add('active');
   if(v==='manifest')buildManifest();
+  if(v==='dashboard')renderDashDevs();
 }
 
 // ─── Site switcher ───
@@ -999,26 +1579,82 @@ function openStoredCard(el,pid,cycle,status,plasma,pbmc,filters,deadline,days){
   openCard(pid,cycle,status,plasma,pbmc,filters,deadline,days);
 }
 
+// Demo history for the pre-loaded patients (dates match the dashboard table)
+const SEED={
+  '201-003|C3D1':{stored:'2026-09-19'},
+  '201-007|C1D1':{stored:'2026-09-20'},
+  '201-012|C2D1':{stored:'2026-09-15'},
+  '201-011|C2D1':{stored:'2026-09-16'},
+  '201-008|C4D1':{stored:'2026-09-10'}
+};
+(function seedDevs(){
+  const at=(day,h,m)=>new Date(day+'T00:00:00').getTime()+(h*60+m)*60000;
+  DEVLOG['201-007|C1D1']=[{key:'lysis',src:'WS-003A',step:'PBMC isolation — SepMate processing',label:'RBC lysis incubation time',detail:'RBC lysis 12 min (max 10)',action:'Proceeded to wash immediately; prolonged exposure recorded on worksheet',notified:'Y — Study coordinator',ms:at('2026-09-20',9,5),operator:'Dr. S. Rao'}];
+  DEVLOG['201-012|C2D1']=[
+    {key:'fi',src:'WS-003B',step:'ScreenCell device setup & filtration',label:'Filtration issue observed?',detail:'Answered Yes — device 2 draining slowly',action:'Continued monitoring until complete; prolonged filtration time recorded',notified:'Y — Study coordinator',ms:at('2026-09-15',10,0),operator:'Dr. S. Rao'},
+    {key:'hold',src:'SM-I-001',step:'Storage and shipping',label:'1-week hold time',detail:'Held beyond 1-week limit before shipment',action:'Central laboratory notified; storage duration and conditions recorded',notified:'Y — Central laboratory',ms:at('2026-09-23',9,0),operator:''}
+  ];
+})();
+
+function devItemHTML(d,withSample){
+  const miss=t=>`<span class="dev-missing">${t}</span>`;
+  return `<div class="dev-item"><div class="dev-item-h">⚑ ${esc(d.label)}</div>`+
+    `<div class="dev-item-m">${withSample?esc(withSample)+' · ':''}${esc(d.src)} · ${esc(d.step)} · ${fD(d.ms)} ${fT(d.ms)}${d.operator?' · '+esc(d.operator):''}</div>`+
+    `<div class="dev-item-b">${esc(d.detail)}<br><b>Corrective action:</b> ${d.action?esc(d.action):miss('not documented')}<br><b>Notified:</b> ${d.notified?esc(d.notified):miss('not recorded')}${d.note?'<br><i>'+esc(d.note)+'</i>':''}</div></div>`;
+}
+
+function buildTimeline(pid,cycle,status,pbmc,live){
+  const items=[];const E=S.ev||{};
+  if(live){
+    const cd=document.getElementById('f-cdate')?.value,ct=document.getElementById('f-ctime')?.value;
+    if(cd&&ct){const ms=new Date(cd+'T'+ct).getTime();if(!isNaN(ms))items.push({ms,c:'s',l:'Blood collected from patient'});}
+    if(E.start)items.push({ms:E.start,c:'a',l:'Processing started (WS-003A)'});
+    if(E['f-ts-plasma'])items.push({ms:E['f-ts-plasma'],c:'s',l:'Plasma isolated and stored at −80°C'});
+    if(E['f-ts-cryo'])items.push({ms:E['f-ts-cryo'],c:'s',l:'PBMCs counted · '+pbmc+' cryovials prepared'});
+    if(E['f-ts-dry2'])items.push({ms:E['f-ts-dry2'],c:'s',l:'CTC filters recovered and dried (WS-003B)'});
+    if(E.done)items.push({ms:E.done,c:'s',l:'All samples stored — awaiting shipment'});
+  }else{
+    const sd=SEED[pid+'|'+cycle];
+    const base=new Date((sd?sd.stored:new Date().toISOString().slice(0,10))+'T00:00:00').getTime();
+    const at=(h,m,dd)=>base+((dd||0)*1440+h*60+m)*60000;
+    items.push({ms:at(7,45),c:'s',l:'Blood collected from patient'},
+               {ms:at(8,15),c:'s',l:'Processing started (WS-003A)'},
+               {ms:at(8,45),c:'s',l:'Plasma isolated and stored at −80°C'},
+               {ms:at(9,35),c:'s',l:'PBMCs counted · '+pbmc+' cryovials prepared'},
+               {ms:at(10,40),c:'s',l:'CTC filters recovered and dried (WS-003B)'},
+               {ms:at(11,5),c:'s',l:'All samples stored — awaiting shipment'});
+    if(status==='shipped'||status==='received')items.push({ms:at(16,30,5),c:'p',l:'Shipped to central facility (Hyderabad)'});
+    if(status==='received')items.push({ms:at(10,20,6),c:'s',l:'Received at central facility'});
+    if(status==='overdue')items.push({ms:at(8,0,7),c:'d',l:'Shipment overdue — 1-week hold limit passed'});
+  }
+  getDevs(pid,cycle).forEach(d=>items.push({ms:d.ms,c:'w',l:'⚑ Deviation — '+d.label}));
+  items.sort((x,y)=>x.ms-y.ms);
+  return items.map((it,i)=>`<div class="tl-item"><div class="tl-dot activity-dot ${it.c}" style="margin-top:3px"></div>${i<items.length-1?'<div class="tl-line"></div>':''}<div class="tl-body"><div class="tl-label">${esc(it.l)}</div><div class="tl-time">${fT(it.ms)} · ${fD(it.ms)}</div></div></div>`).join('');
+}
+
 function openCard(pid,cycle,status,plasma,pbmc,filters,deadline,days){
+  const live=!!(S.ev&&S.ev.start&&S.patientId===pid&&S.cycle===cycle);
+  const sd=SEED[pid+'|'+cycle];
+  const storedMs=live?(S.ev.done||Date.now()):(sd?new Date(sd.stored+'T00:00:00').getTime():Date.now());
+  const ymd=new Date(storedMs);
+  const runId=live?S.runId:(pid.split('-')[0]+'-'+ymd.getFullYear()+String(ymd.getMonth()+1).padStart(2,'0')+String(ymd.getDate()).padStart(2,'0')+'-001A');
   setV('card-pid',pid,'text');setV('card-cyc',cycle,'text');
   setV('card-plasma',plasma,'text');setV('card-pbmc',pbmc,'text');setV('card-filters',filters,'text');
-  setV('card-deadline',deadline?'Ship by '+deadline+(days?' — '+days:''):'Shipped ✓','text');
-  setV('card-runid',S.runId||'201-20260922-001A','text');
+  setV('card-date',fD(storedMs),'text');
+  setV('card-deadline',deadline?'Ship by '+deadline+(days?' — '+days:''):(status==='shipped'||status==='received'?'Shipped ✓':'Overdue'),'text');
+  setV('card-runid',runId,'text');
   setV('card-status-txt',status.charAt(0).toUpperCase()+status.slice(1),'text');
+  const _se=document.getElementById('card-status-el');if(_se)_se.className='sc-status '+(status==='received'?'stored':status);
   document.getElementById('card-title').textContent=pid+' · '+cycle;
   S._cardPid=pid;S._cardCycle=cycle;S._cardPlasma=plasma;S._cardPbmc=pbmc;S._cardFilters=filters;
-  // Timeline
-  const tl=document.getElementById('card-timeline');
-  const steps=[
-    {c:'s',lbl:'Blood collected from patient',t:'07:45 IST · '+nowDate()},
-    {c:'s',lbl:'Received in pathology lab',t:'08:10 IST · '+nowDate()},
-    {c:'a',lbl:'Processing started (WS-003A)',t:S.startTs||'08:15 IST · '+nowDate()},
-    {c:'s',lbl:'Plasma isolated and stored at −80°C',t:'08:45 IST · '+nowDate()},
-    {c:'s',lbl:'PBMCs counted · '+pbmc+' cryovials prepared',t:'09:10 IST · '+nowDate()},
-    {c:'s',lbl:'CTC filters recovered and dried (WS-003B)',t:'09:40 IST · '+nowDate()},
-    {c:status==='stored'?'s':status==='shipped'?'p':'w',lbl:status==='stored'?'All samples stored — awaiting shipment':status==='shipped'?'Shipped to QIMR Brisbane':'In progress',t:S.completedTs||nowTs()+' · '+nowDate()},
-  ];
-  tl.innerHTML=steps.map((s,i)=>`<div class="tl-item"><div class="tl-dot activity-dot ${s.c}" style="margin-top:3px"></div>${i<steps.length-1?'<div class="tl-line"></div>':''}<div class="tl-body"><div class="tl-label">${s.lbl}</div><div class="tl-time">${s.t}</div></div></div>`).join('');
+  // Deviations
+  const devs=getDevs(pid,cycle);
+  const cell=document.getElementById('card-devs');
+  if(!devs.length){cell.textContent='None logged';cell.style.color='var(--success)';}
+  else{cell.innerHTML='<a href="#" onclick="event.preventDefault();scrollTo(\'card-devlog-wrap\')" style="color:var(--warning);text-decoration:none">⚑ '+devs.length+' logged — view</a>';}
+  document.getElementById('card-devlog').innerHTML=devs.length?devs.map(d=>devItemHTML(d)).join(''):'<div class="dev-empty">No deviations logged for this sample.</div>';
+  // Timeline (real stamped times, chronological, deviations flagged)
+  document.getElementById('card-timeline').innerHTML=buildTimeline(pid,cycle,status,pbmc,live);
   showView('card');
 }
 
@@ -1028,7 +1664,7 @@ function buildManifest(){
   const plasma=S._cardPlasma||3;const pbmc=S._cardPbmc||6;
   const siteId=S.siteId||'201';const siteName=SITES[siteId]||'Apollo Hyderabad';
   const today=nowDate();
-  setV('mf-id',siteId+'-PP-SHP-5','val');setV('mf-site',siteId+' — '+siteName,'val');setV('mf-week','27 Sep 2026','val');
+  setV('mf-id',siteId+'-PP-SHP-5','val');setV('mf-site',siteId+' — '+siteName,'val');setV('mf-week',weekEnding(),'val');
   document.getElementById('mf-sub').textContent='SM-I-001 · Site '+siteId+' · '+siteName;
   const fz=document.getElementById('f-out-fz')?.value||'FZ-01';
   const bx=document.getElementById('f-out-bx')?.value||'Box 13A';
@@ -1052,32 +1688,95 @@ function buildManifest(){
     {pid:'201-012',cycle:'C2D1',type:'Filter',id:'F-2023991',box:'FILT-BOX-01',temp:'chill'},
   ];
   const allRows=[...newRows,...existing];
+  const rowDate=r=>{const sd=SEED[r.pid+'|'+r.cycle];return sd?fD(new Date(sd.stored+'T00:00:00').getTime()):today;};
   document.getElementById('mf-tbody').innerHTML=allRows.map(r=>`
     <tr>
       <td class="mf-mono">${r.pid}</td><td>${r.cycle}</td>
       <td><span class="type-pill tp-${r.type.toLowerCase()}">${r.type}</span></td>
       <td class="mf-mono">${r.id}</td><td class="mf-mono">${r.box}</td>
-      <td class="mf-mono">${today}</td>
+      <td class="mf-mono">${rowDate(r)}</td>
       <td><span class="type-pill ${r.temp==='frozen'?'tp-frozen':'tp-chill'}">${r.temp==='frozen'?'Frozen −80°C':'Chilled 4–8°C'}</span></td>
+      <td>${getDevs(r.pid,r.cycle).length?`<span class="dev-pill">⚑ ${getDevs(r.pid,r.cycle).length}</span>`:'<span style="color:var(--text-3)">—</span>'}</td>
       <td><input type="checkbox" checked style="width:auto;accent-color:var(--accent)"></td>
     </tr>`).join('');
+  renderMfDevs(allRows);
 }
 
 // ─── Form helpers ───
+// ─── Deviation log engine ───
+// Every deviation is stored against Patient|Cycle (or the shipment) so the sample record,
+// timeline, weekly manifest and dashboard all read from the same source.
+const DEV_ICON='<svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 1L11 10H1L6 1Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M6 5v2M6 8.5v.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>';
+function esc(t){return String(t==null?'':t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function fT(ms){return new Date(ms).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false})+' IST';}
+function fD(ms){return new Date(ms).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});}
+function devKey(){return (S.patientId||'unassigned')+'|'+(S.cycle||'');}
+function getDevs(pid,cycle){return DEVLOG[pid+'|'+cycle]||[];}
+function devSource(el){if(el.closest('#view-manifest'))return 'SM-I-001';if(el.closest('#s7'))return 'WS-003B';return 'WS-003A';}
+function devStep(el){const fc=el.closest('.form-card');return (fc?.querySelector('.fc-title')?.textContent||'').trim();}
+function devBoxHTML(d,k,title){
+  return `<div class="dev-box" data-dev="${esc(d.key)}" data-k="${esc(k)}"><div class="dev-title">${DEV_ICON} ${esc(title)}</div>`+
+    `<textarea data-f="action" placeholder="Corrective action taken…">${esc(d.action)}</textarea>`+
+    `<input type="text" data-f="notified" value="${esc(d.notified)}" placeholder="Notified (Y/N, whom) — e.g. Y, Study coordinator"></div>`;
+}
+function flagDev(hostId,key,cond,o,anchor){
+  const k=o.k;let host=document.getElementById(hostId);
+  if(!host&&anchor){
+    host=document.createElement('div');host.id=hostId;
+    const row=anchor.closest('.ck-row');
+    if(row)row.after(host);else anchor.closest('.yn').parentElement.appendChild(host);
+  }
+  const arr=DEVLOG[k]||(DEVLOG[k]=[]);
+  let d=arr.find(x=>x.key===key);
+  if(cond){
+    if(!d){d={key,src:o.src,step:o.step,label:o.label,detail:o.detail,action:'',notified:'',ms:Date.now(),operator:document.getElementById('f-tech')?.value||''};arr.push(d);}
+    else{d.detail=o.detail;delete d.note;}
+    if(host)host.innerHTML=devBoxHTML(d,k,o.title);
+  }else{
+    if(d){if(d.action||d.notified){d.note='Worksheet value later corrected';}else arr.splice(arr.indexOf(d),1);}
+    if(host)host.innerHTML='';
+  }
+}
+// keep the stored record in sync with what the technician types
+document.addEventListener('input',e=>{
+  const t=e.target;if(!t.matches||!t.matches('[data-f]'))return;
+  const box=t.closest('.dev-box[data-dev]');if(!box)return;
+  const d=(DEVLOG[box.dataset.k]||[]).find(x=>x.key===box.dataset.dev);
+  if(d)d[t.dataset.f]=t.value;
+});
+
 function yn(btn,key){
-  const g=btn.closest('.yn');g.querySelectorAll('.yn-b').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
-  const isNo=btn.classList.contains('no');
-  const d=document.getElementById('dev-'+key);
-  if(d){d.innerHTML=isNo?`<div class="dev-box"><div class="dev-title"><svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 1L11 10H1L6 1Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M6 5v2M6 8.5v.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg> Deviation — describe and document corrective action</div><textarea placeholder="Step, description and corrective action taken…"></textarea></div>`:''}
+  const g=btn.closest('.yn');
+  g.querySelectorAll('.yn-b').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
+  const inv=INVERT.has(key);
+  const isDev=inv?btn.classList.contains('yes'):btn.classList.contains('no');
+  const src=devSource(btn);
+  const lbl=((g.closest('.ck-row')?.querySelector('.ck-lbl'))||g.parentElement.querySelector('label'))?.textContent.trim()||key;
+  const k=src==='SM-I-001'?SHIPKEY:devKey();
+  flagDev('dev-'+key,key,isDev,{k,src,step:devStep(btn),label:lbl,
+    detail:(inv?'Answered Yes — ':'Answered No — ')+lbl,
+    title:'Deviation — describe and document corrective action'},btn);
+  if(src==='SM-I-001')renderMfDevs();
 }
 
 function checkPH(v){
-  const val=parseFloat(v);const inp=document.getElementById('f-ph');const d=document.getElementById('dev-ph');
-  if(v&&(val<6.7||val>7.3)){inp.classList.add('f-danger');d.innerHTML=`<div class="dev-box"><div class="dev-title">pH ${val} is outside 6.7–7.3 — deviation required. Add NaOH in small increments and re-check.</div><textarea placeholder="Volume NaOH added, re-measured pH, outcome…"></textarea></div>`;}
-  else{inp.classList.remove('f-danger');d.innerHTML='';}
+  const val=parseFloat(v);const inp=document.getElementById('f-ph');
+  const bad=v!==''&&!isNaN(val)&&(val<6.7||val>7.3);
+  inp.classList.toggle('f-danger',bad);
+  flagDev('dev-ph','ph',bad,{k:devKey(),src:'WS-003B',step:'FC2 buffer pH verification',label:'Final FC2 pH',
+    detail:'pH '+val+' outside accepted range 6.7–7.3',
+    title:'pH '+val+' is outside 6.7–7.3 — deviation required. Add NaOH in small increments and re-check.'});
 }
-function checkNaOH(v){const d=document.getElementById('dev-naoh');d.innerHTML=parseFloat(v)>12?`<div class="dev-box"><div class="dev-title">NaOH >12µL — document. Up to 15µL acceptable; above that discard and use fresh kit.</div><textarea placeholder="Volume used, outcome…"></textarea></div>`:''}
-function checkLysis(v){const d=document.getElementById('dev-lysis');d.innerHTML=parseFloat(v)>10?`<div class="dev-box"><div class="dev-title">Lysis >10 min — proceed with wash immediately and document.</div><textarea placeholder="Actual time, action taken…"></textarea></div>`:''}
+function checkNaOH(v){
+  const val=parseFloat(v);
+  flagDev('dev-naoh','naoh',val>12,{k:devKey(),src:'WS-003B',step:'FC2 buffer pH verification',label:'Total NaOH used',
+    detail:'NaOH '+val+' µL (>12 µL)',title:'NaOH >12µL — document. Up to 15µL acceptable; above that discard and use fresh kit.'});
+}
+function checkLysis(v){
+  const val=parseFloat(v);
+  flagDev('dev-lysis','lysis',val>10,{k:devKey(),src:'WS-003A',step:'PBMC isolation — SepMate processing',label:'RBC lysis incubation time',
+    detail:'RBC lysis '+val+' min (max 10)',title:'Lysis >10 min — proceed with wash immediately and document.'});
+}
 
 function tubeChange(num,val){
   const el=document.getElementById('tv'+num);if(!el)return;
@@ -1100,103 +1799,194 @@ function calcPBMC(){
   const tbl=[[2e6,2,'0','1'],[3e6,3,'0.5','1.5'],[4e6,4,'1','2'],[5e6,5,'1.5','2.5'],[6e6,6,'2','3'],[7e6,7,'2.5','3.5'],[8e6,8,'3','4'],[9e6,9,'3.5','4.5']];
   let row=tbl[tbl.length-1];for(const r of tbl){if(conc<=r[0]){row=r;break;}}
   setV('f-res-v',row[2]+' mL','val');setV('f-cry-v',row[3]+' mL','val');setV('f-conc-v','≥ 1 × 10⁶ cells/mL','val');
-  const low=document.getElementById('calc-low');low.innerHTML=conc<2e6?`<div class="dev-box"><div class="dev-title">PBMC count < 2×10⁶ — freeze 2 vials at 1:1 ratio, document low yield</div></div>`:'';
+  flagDev('calc-low','lowyield',conc<2e6,{k:devKey(),src:'WS-003A',step:'PBMC counting & cryopreservation',label:'PBMC count',detail:'PBMC count '+conc.toLocaleString()+' cells (<2×10⁶)',title:'PBMC count < 2×10⁶ — freeze 2 vials at 1:1 ratio, document low yield'});
 }
 
 function stamp(id,msg){
-  document.getElementById(id).value=nowTs();toast(msg,'success');
+  document.getElementById(id).value=nowTs();
+  S.ev=S.ev||{};S.ev[id]=Date.now();
+  if(msg)toast(msg,'success');
 }
 
 // ─── Demo mode ───
-const DEMO_STEPS=[
-  {lbl:'Scanning patient barcode 201-001…',desc:'Barcode scanned',fn:()=>{
-    document.getElementById('barcode-in').value='201-001';
-    document.getElementById('barcode-in').dispatchEvent(new Event('input'));
-    doScan();showView('welcome');
+// ─── Demo mode — fills every field at human pace (speed adjustable) ───
+let demoSpeed=1,demoAbort=false,demoRunning=false,DEMO_DRY=false,DEMO_NOMINAL=0;
+function setDemoSpeed(x){
+  demoSpeed=x;
+  document.querySelectorAll('#demo-speed button').forEach(b=>b.classList.toggle('on',parseFloat(b.textContent)===x));
+}
+function dSleep(ms){
+  if(demoAbort)return Promise.reject(new Error('demo-stop'));
+  if(DEMO_DRY){DEMO_NOMINAL+=ms;return Promise.resolve();}
+  return new Promise((res,rej)=>setTimeout(()=>demoAbort?rej(new Error('demo-stop')):res(),ms/demoSpeed));
+}
+const $d=id=>document.getElementById(id);
+async function dFocus(el,pause){
+  if(!el)return;
+  el.scrollIntoView({behavior:DEMO_DRY?'auto':'smooth',block:'center'});
+  await dSleep(pause||550);
+  el.classList.add('demo-focus');
+}
+function dBlur(el){if(el){el.classList.remove('demo-focus');el.blur&&el.blur();}}
+// type character-by-character into a text/number field (dates/times are set in one go)
+async function dTypeEl(el,text,charMs){
+  if(!el)return;
+  await dFocus(el);
+  el.focus&&el.focus({preventScroll:true});
+  text=String(text);
+  const simple=(el.type==='date'||el.type==='time');
+  el.value='';
+  if(!simple){
+    for(let i=1;i<=text.length;i++){
+      const pre=text.slice(0,i);
+      const ok=el.type!=='number'||(!isNaN(pre)&&!pre.endsWith('.'));
+      if(ok){el.value=pre;el.dispatchEvent(new Event('input',{bubbles:true}));}
+      await dSleep(charMs||70);
+    }
+  }else{await dSleep(500);}
+  el.value=text;
+  el.dispatchEvent(new Event('input',{bubbles:true}));
+  el.dispatchEvent(new Event('change',{bubbles:true}));
+  await dSleep(350);
+  dBlur(el);
+}
+const dType=(id,text,ms)=>dTypeEl($d(id),text,ms);
+async function dSelect(el,val){
+  if(!el)return;
+  await dFocus(el);await dSleep(500);
+  el.value=val;el.dispatchEvent(new Event('change',{bubbles:true}));
+  await dSleep(400);dBlur(el);
+}
+async function dClickEl(el,pause){
+  if(!el)return;
+  await dFocus(el);await dSleep(pause||450);
+  el.click();
+  await dSleep(400);dBlur(el);
+}
+// answer a Y/N row the way a correct run would (for INVERT rows, correct answer is N)
+function dYNKey(key){return dClickEl(document.querySelector('.yn-b'+(INVERT.has(key)?'.no':'.yes')+'[onclick*="\''+key+'\'"]'),350);}
+async function dYNs(keys){for(const k of keys)await dYNKey(k);}
+function dStampBtn(id){return dClickEl(document.querySelector('button[onclick*="\''+id+'\'"]'));}
+function dByLabel(t){
+  const l=[...document.querySelectorAll('#view-session label')].find(x=>x.textContent.includes(t));
+  return l?l.parentElement.querySelector('input'):null;
+}
+// document a deviation the way a technician would
+async function dDocDev(hostId,action,notified){
+  await dSleep(700);
+  const box=document.querySelector('#'+hostId+' .dev-box');if(!box)return;
+  await dTypeEl(box.querySelector('textarea'),action,45);
+  await dTypeEl(box.querySelector('input'),notified,55);
+}
+
+const DEMO_PHASES=[
+  {lbl:'Scanning patient barcode 201-001…',desc:'Barcode scanned',run:async()=>{
+    const mob=isMobile();
+    if(mob)mobileNav('mobile-home');else showView('welcome');
+    await dSleep(900);
+    await dType(mob?'barcode-in':'barcode-in-desk','201-001',110);
+    await dSleep(500);
+    mob?doScan():doScanDesk();
+    await dSleep(700);
+    await dSelect($d(mob?'cycle-sel':'cycle-sel-desk'),'C1D1');
   }},
-  {lbl:'Starting session — timestamp fires…',desc:'Session started',fn:()=>{
-    S.patientId='201-001';S.siteId='201';S.siteName='Apollo Hyderabad';
-    startSession('201-001');showView('session');
+  {lbl:'Starting session — timestamp fires…',desc:'Session started',run:async()=>{
+    const mob=isMobile();
+    const sb=$d(mob?'start-btn':'start-btn-desk');
+    if(sb){sb.disabled=false;await dClickEl(sb,500);}
+    else{S.patientId='201-001';S.siteId='201';S.siteName='Apollo Hyderabad';startSession('201-001');showView('session');}
+    if(!document.getElementById('view-session').classList.contains('active')){
+      S.patientId='201-001';S.siteId='201';S.siteName='Apollo Hyderabad';startSession('201-001');showView('session');
+    }
+    await dSleep(1200);
+    // collection ~90 min before processing (target window ≤2 h)
+    const c=new Date(Date.now()-90*60000);
+    const pad=n=>String(n).padStart(2,'0');
+    await dTypeEl($d('f-cdate'),c.getFullYear()+'-'+pad(c.getMonth()+1)+'-'+pad(c.getDate()));
+    await dTypeEl($d('f-ctime'),pad(c.getHours())+':'+pad(c.getMinutes()));
+    await dType('f-tech','Dr. S. Rao',90);
   }},
-  {lbl:'Checking buffers — all confirmed…',desc:'Buffer checks complete',fn:()=>{
-    document.querySelectorAll('.yn-b.yes').forEach((b,i)=>{if(i<5)yn(b,null);});
-    // Auto-tick first 5 yes buttons
-    const yns=document.querySelectorAll('#s1 .yn-b.yes');yns.forEach(b=>b.click());
-    scrollTo('s2');
+  {lbl:'Checking buffers — one by one…',desc:'Buffer checks complete',run:async()=>{
+    await dYNs(['buf-pbs','buf-res','buf-cry','buf-mrf','buf-rbc']);
   }},
-  {lbl:'Logging tube conditions — all clear…',desc:'Tubes 1,3,4,5 clear · Tube 2 reserved',fn:()=>{
-    setV('f-bvol','30','val');
-    document.querySelectorAll('#s2 select').forEach(s=>{if(s.value==='')s.value='clear';});
-    [1,3,4,5].forEach(n=>{const el=document.getElementById('tv'+n);if(el)el.className='tube-vis tube-ok';});
-    scrollTo('s4');
-    // Plasma
-    setTimeout(()=>{
-      document.getElementById('f-plasma-n').value=3;
-      document.getElementById('out-plasma').textContent='3';
-      yn(document.querySelector('#s4 .yn-b.yes'),'sp1');
-      yn(document.querySelectorAll('#s4 .yn-b.yes')[1],'buffy');
-    },300);
+  {lbl:'Logging tubes, blood volume and reagent lots…',desc:'Tubes 1,3,4,5 clear · Tube 2 reserved · lots recorded',run:async()=>{
+    await dType('f-bvol','30',120);
+    for(const sel of [...document.querySelectorAll('#s2 select')])await dSelect(sel,'clear');
+    const lots=[['lymph','LP240711','2027-03-31'],['sep','SM250114','2027-06-30'],['pbs','PB240715','2027-01-31'],['fbs','FBS2401','2027-02-28'],['rpm','RP250302','2027-05-31'],['rbc','RB240918','2027-04-30'],['try','TB240811','2027-08-31'],['dms','DM240901','2027-09-30']];
+    for(const [k,lot,exp] of lots){await dType('rl-'+k,lot,60);await dTypeEl($d('re-'+k),exp);}
   }},
-  {lbl:'Logging plasma isolated — timestamp fires…',desc:'3 plasma vials stored at −80°C',fn:()=>{
-    stamp('f-ts-plasma','Plasma storage logged');
-    setV('f-plasma-fz','FZ-01 / Box 13A','val');
-    document.querySelectorAll('#s4 .yn-b.yes').forEach(b=>b.click());
-    scrollTo('s5');
+  {lbl:'Plasma isolation — spin, aliquot, store…',desc:'3 plasma vials stored at −80°C',run:async()=>{
+    await dYNKey('sp1');
+    await dType('f-plasma-n','3',150);
+    await dYNKey('buffy');
+    await dStampBtn('f-ts-plasma');
+    await dType('f-plasma-fz','FZ-01 / Box 13A',70);
   }},
-  {lbl:'Entering haemocytometer counts…',desc:'PBMC count auto-calculated',fn:()=>{
-    setV('h1','20','val');setV('h2','24','val');setV('h3','22','val');setV('h4','18','val');
-    ['h1','h2','h3','h4'].forEach(id=>document.getElementById(id).dispatchEvent(new Event('change')));
-    scrollTo('s6');setTimeout(()=>stamp('f-ts-cryo','PBMC cryovials logged'),400);
+  {lbl:'SepMate, PBMC wash, RBC lysis and cell count…',desc:'PBMC count auto-calculated',run:async()=>{
+    await dTypeEl(dByLabel('Tube A diluted'),'17',120);
+    await dTypeEl(dByLabel('Tube B diluted'),'17',120);
+    await dYNs(['sp2','buffy2','spw']);
+    await dType('f-lysis','8',150);
+    await dYNKey('spp');
+    for(const [id,v] of [['h1','20'],['h2','24'],['h3','22'],['h4','18']])await dType(id,v,120);
+    await dSleep(1200);
+    // low yield (<2×10⁶) raises a deviation — document it
+    await dDocDev('calc-low','Frozen across 2 vials at 1:1 ratio per SOP; yield recorded on worksheet','Y — Study coordinator');
+    await dStampBtn('f-ts-cryo');
   }},
-  {lbl:'CTC section — entering pH 6.2 (out of range)…',desc:'Deviation fires automatically',fn:()=>{
-    scrollTo('s7');
-    setTimeout(()=>{
-      setV('f-ph','6.2','val');
-      document.getElementById('f-ph').dispatchEvent(new Event('change'));
-      checkPH('6.2');
-    },400);
+  {lbl:'CTC section — entering pH 6.2 (out of range)…',desc:'Deviation fires automatically',run:async()=>{
+    await dType('f-ph','6.2',140);
+    await dDocDev('dev-ph','Added 9 µL NaOH in 3 µL steps, re-measured pH 7.1 — within range','Y — Study coordinator');
+    await dSleep(500);
+    await dType('f-ph','7.1',140);
+    await dType('f-naoh','9',150);
   }},
-  {lbl:'Correcting pH to 7.1 — deviation clears…',desc:'CTC filters recorded',fn:()=>{
-    setV('f-ph','7.1','val');checkPH('7.1');
-    setV('f-naoh','9','val');
-    document.getElementById('f-naoh').dispatchEvent(new Event('change'));
-    document.querySelectorAll('#s7 .yn-b.yes').forEach(b=>b.click());
-    setV('f-f1id','F-2024003','val');setV('f-f2id','F-2024004','val');
-    setV('f-f1box','FILT-BOX-01','val');setV('f-f2box','FILT-BOX-01','val');
-    stamp('f-ts-dry1','');stamp('f-ts-dry2','');
-    setV('f-out-fz','FZ-01','val');setV('f-out-bx','Box 13A','val');
-    setV('f-sig-t','Dr. S. Rao','val');setV('f-sig-r','A. Bain','val');
-    scrollTo('s8');
+  {lbl:'ScreenCell filtration, filter IDs and drying…',desc:'CTC filters recorded',run:async()=>{
+    await dYNs(['inc','d1','d2','pbs','fi']);
+    await dType('f-f1id','F-2024003',75);
+    await dSelect($d('f-f1cond'),'intact');
+    await dType('f-f1box','FILT-BOX-01',65);
+    await dType('f-f2id','F-2024004',75);
+    await dSelect($d('f-f2cond'),'intact');
+    await dType('f-f2box','FILT-BOX-01',65);
+    await dYNKey('oven');
+    await dStampBtn('f-ts-dry1');
+    await dSleep(1500);
+    await dStampBtn('f-ts-dry2');
   }},
-  {lbl:'Completing session — dashboard updates live…',desc:'Status: Stored · Manifest ready',fn:()=>{
-    completeSession();
+  {lbl:'Sign-off — storage location and signatures…',desc:'Status: Stored · Manifest ready',run:async()=>{
+    await dType('f-out-fz','FZ-01',90);
+    await dType('f-out-bx','Box 13A',90);
+    await dType('f-sig-t','Dr. S. Rao',80);
+    await dType('f-sig-r','A. Bain',80);
+    await dClickEl(document.querySelector('button[onclick="completeSession()"]'),600);
+    await dSleep(3500);   // let the sample record open and be seen
   }},
 ];
 
-let demoStep=0;
-
-function runDemo(){
-  demoStep=0;
+async function runDemo(){
+  if(demoRunning){demoAbort=true;while(demoRunning)await new Promise(r=>setTimeout(r,30));}
+  demoRunning=true;demoAbort=false;
   document.getElementById('demo-banner').style.display='flex';
   document.getElementById('demo-progress').style.display='block';
-  runDemoStep();
-}
-
-function runDemoStep(){
-  if(demoStep>=DEMO_STEPS.length){stopDemo();return;}
-  const step=DEMO_STEPS[demoStep];
-  const pct=Math.round(((demoStep+1)/DEMO_STEPS.length)*100);
-  document.getElementById('demo-step-lbl').textContent=`Step ${demoStep+1} of ${DEMO_STEPS.length}`;
-  document.getElementById('demo-step-desc').textContent=step.lbl;
-  document.getElementById('demo-bar').style.width=pct+'%';
-  toast(step.desc,'success');
-  try{step.fn();}catch(e){console.warn(e);}
-  demoStep++;
-  demoTimer=setTimeout(runDemoStep,2600);
+  try{
+    for(let i=0;i<DEMO_PHASES.length;i++){
+      const ph=DEMO_PHASES[i];
+      document.getElementById('demo-step-lbl').textContent=`Step ${i+1} of ${DEMO_PHASES.length}`;
+      document.getElementById('demo-step-desc').textContent=ph.lbl;
+      document.getElementById('demo-bar').style.width=Math.round(((i+1)/DEMO_PHASES.length)*100)+'%';
+      if(!DEMO_DRY)toast(ph.desc,'success');
+      await ph.run();
+      await dSleep(700);
+    }
+  }catch(e){if(!e||e.message!=='demo-stop')console.warn(e);}
+  demoRunning=false;
+  stopDemo();
 }
 
 function stopDemo(){
-  if(demoTimer)clearTimeout(demoTimer);
+  demoAbort=true;
+  document.querySelectorAll('.demo-focus').forEach(el=>el.classList.remove('demo-focus'));
   document.getElementById('demo-banner').style.display='none';
   document.getElementById('demo-progress').style.display='none';
 }
@@ -1228,6 +2018,224 @@ function toast(msg,type){
   document.body.appendChild(toastEl);
   setTimeout(()=>toastEl&&toastEl.remove(),3000);
 }
+
+// ═══════════════════════════════════════
+// OPTION C — MOBILE HOME SCREEN
+// ═══════════════════════════════════════
+
+const _mq=window.matchMedia('(max-width:600px)');
+function isMobile(){return _mq.matches;}
+
+// On mobile: activate home screen, hide desktop welcome
+function initMobile(){
+  if(!isMobile())return;
+  // Hide desktop welcome, show mobile home
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  const mh=document.getElementById('view-mobile-home');
+  if(mh)mh.classList.add('active');
+  buildBarcodeIn('barcode-vis');
+}
+initMobile();
+
+function buildBarcodeIn(id){
+  const c=document.getElementById(id);if(!c)return;
+  const w=[2,1,3,1,2,1,1,2,3,1,2,1,1,3,2,1,1,2,1,3,2,1,3,1,2,1];
+  c.innerHTML='';
+  w.forEach((n,i)=>{
+    const s=document.createElement('span');
+    const isMob=c.id==='barcode-vis';
+    s.style.cssText=`width:${n*2}px;background:${i%2===0?(isMob?'rgba(255,255,255,0.8)':'var(--text)'):'transparent'}`;
+    c.appendChild(s);
+  });
+}
+buildBarcodeIn('barcode-vis-desk');
+
+// Mobile barcode input (in hero)
+const mobIn=document.getElementById('barcode-in');
+if(mobIn){
+  mobIn.addEventListener('input',function(){
+    const btn=document.getElementById('start-btn');
+    if(btn)btn.disabled=this.value.trim().length<5;
+  });
+  mobIn.addEventListener('keydown',e=>{if(e.key==='Enter')doScan();});
+}
+
+// doScan reads from whichever input is visible
+function doScan(){
+  const inp=isMobile()?document.getElementById('barcode-in'):null;
+  const raw=(inp?.value||'').trim();
+  if(!raw){toast('Enter a patient ID first');return;}
+  const siteId=raw.split('-')[0]||'201';
+  S.patientId=raw;S.siteId=siteId;S.siteName=SITES[siteId]||'Apollo Hyderabad';
+  const btn=document.getElementById('start-btn');if(btn)btn.disabled=false;
+  toast('Barcode scanned — '+raw+' · '+S.siteName,'success');
+}
+
+// Desktop scan
+function doScanDesk(){
+  const raw=(document.getElementById('barcode-in-desk')?.value||'').trim();
+  if(!raw)return;
+  const siteId=raw.split('-')[0]||'201';
+  S.patientId=raw;S.siteId=siteId;S.siteName=SITES[siteId]||'Apollo Hyderabad';
+  const btn=document.getElementById('start-btn-desk');if(btn)btn.disabled=false;
+  toast('Barcode scanned — '+raw+' · '+S.siteName,'success');
+}
+const deskIn=document.getElementById('barcode-in-desk');
+if(deskIn){
+  deskIn.addEventListener('input',function(){
+    const b=document.getElementById('start-btn-desk');if(b)b.disabled=this.value.trim().length<5;
+  });
+  deskIn.addEventListener('keydown',e=>{if(e.key==='Enter')doScanDesk();});
+}
+function startSessionDesk(){
+  const raw=(document.getElementById('barcode-in-desk')?.value||'').trim();
+  if(raw&&!S.patientId){doScanDesk();}
+  const cycle=document.getElementById('cycle-sel-desk')?.value||'C1D1';
+  if(document.getElementById('cycle-sel'))document.getElementById('cycle-sel').value=cycle;
+  startSession(S.patientId||raw);
+}
+
+// Sync cycle selects
+document.getElementById('cycle-sel')?.addEventListener('change',function(){
+  const d=document.getElementById('cycle-sel-desk');if(d)d.value=this.value;
+});
+
+// ─── setMobNavActive ───
+function setMobNavActive(id){
+  document.querySelectorAll('.bnav-item').forEach(b=>b.classList.remove('active'));
+  const btn=document.getElementById(id);if(btn)btn.classList.add('active');
+}
+
+// ─── mobileNav — single router for mobile tabs ───
+function mobileNav(view){
+  if(view==='mobile-home'){
+    document.querySelectorAll('.view').forEach(v=>{v.classList.remove('active');});
+    const mh=document.getElementById('view-mobile-home');
+    if(mh)mh.classList.add('active');
+    setMobNavActive('bn-home');return;
+  }
+  if(view==='patients'){
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    const pv=document.getElementById('view-patients');
+    if(pv)pv.classList.add('active');
+    setMobNavActive('bn-patients');return;
+  }
+  // Other views go through showView
+  showView(view);
+  const map={dashboard:'bn-dash',manifest:'bn-manifest',session:'bn-home',card:'bn-patients'};
+  setMobNavActive(map[view]||'bn-home');
+}
+
+// ─── Mobile-specific card opener from patients list ───
+function mobileOpenCard(pid,cycle,status,plasma,pbmc,filters,deadline,days){
+  openCard(pid,cycle,status,plasma,pbmc,filters,deadline,days);
+  setMobNavActive('bn-patients');
+}
+
+// ─── Update mobile active session cards after startSession ───
+const _origStart=startSession;
+startSession=function(prefill){
+  _origStart(prefill);
+  const pid=S.patientId;const cycle=S.cycle;
+  if(pid&&cycle&&isMobile()){
+    const sc=document.getElementById('mob-active-sc');
+    const id=document.getElementById('mob-active-id');
+    if(sc&&id){sc.style.display='flex';id.textContent=pid+' · '+cycle;}
+    const sc2=document.getElementById('mob-pts-active-sc');
+    const id2=document.getElementById('mob-pts-active-id');
+    if(sc2&&id2){sc2.style.display='flex';id2.textContent=pid+' · '+cycle;}
+    // Navigate to session view on mobile
+    if(!prefill)mobileNav('session');
+  }
+};
+
+// ─── Patch showView to keep mobile nav in sync ───
+const _origShowView=showView;
+window.showView=function(v){
+  // On mobile, special views handled by mobileNav
+  if(isMobile()&&(v==='welcome')){mobileNav('mobile-home');return;}
+  _origShowView(v);
+  if(isMobile()){
+    const map={session:'bn-home','mobile-home':'bn-home',dashboard:'bn-dash',manifest:'bn-manifest',card:'bn-patients',patients:'bn-patients'};
+    setMobNavActive(map[v]||'bn-home');
+  }
+};
+
+// ─── Tablet sidebar toggle ───
+function toggleSidebar(){
+  document.querySelector('.sidebar').classList.toggle('open');
+}
+
+// ─── Drawer (tablet only) ───
+function openDrawer(){
+  document.querySelector('.sidebar').classList.add('drawer-open');
+  const ov=document.getElementById('drawer-overlay');if(ov)ov.classList.add('show');
+  document.body.style.overflow='hidden';
+}
+function closeDrawer(){
+  document.querySelector('.sidebar').classList.remove('drawer-open');
+  const ov=document.getElementById('drawer-overlay');if(ov)ov.classList.remove('show');
+  document.body.style.overflow='';
+}
+
+// ─── Tablet data-initials ───
+document.querySelectorAll('#session-list .sc').forEach(card=>{
+  const pid=card.querySelector('.sc-pid');
+  if(pid)card.setAttribute('data-initials',pid.textContent.slice(-3));
+});
+
+
+function weekEnding(){
+  const d=new Date();d.setDate(d.getDate()+((7-d.getDay())%7));
+  return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+}
+let _mfRows=[];
+function renderMfDevs(rows){
+  if(rows)_mfRows=rows;
+  const host=document.getElementById('mf-devlog');if(!host)return;
+  const seen=new Set();const items=[];
+  _mfRows.forEach(r=>{const k=r.pid+'|'+r.cycle;if(seen.has(k))return;seen.add(k);getDevs(r.pid,r.cycle).forEach(d=>items.push({d,who:r.pid+' '+r.cycle}));});
+  (DEVLOG[SHIPKEY]||[]).forEach(d=>items.push({d,who:'Shipment'}));
+  items.sort((x,y)=>x.d.ms-y.d.ms);
+  document.getElementById('mf-dev-sum').textContent=items.length?items.length+' deviation'+(items.length>1?'s':'')+' recorded for samples in this shipment — carried over from the worksheets.':'No deviations recorded for samples in this shipment.';
+  host.innerHTML=items.length?items.map(x=>devItemHTML(x.d,x.who)).join(''):'<div class="dev-empty">None logged.</div>';
+}
+function addMfDev(){
+  const g=id=>(document.getElementById(id)?.value||'').trim();
+  const desc=g('mf-dv-desc');
+  if(!desc){toast('Enter a deviation description');return;}
+  (DEVLOG[SHIPKEY]||(DEVLOG[SHIPKEY]=[])).push({key:'manual-'+Date.now(),src:'SM-I-001',step:'Shipment',label:g('mf-dv-sample')||'Shipment',detail:desc,action:g('mf-dv-act'),notified:g('mf-dv-not'),ms:Date.now(),operator:''});
+  ['mf-dv-sample','mf-dv-desc','mf-dv-act','mf-dv-not'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  renderMfDevs();toast('Deviation added to manifest','success');
+}
+function renderDashDevs(){
+  const dd=document.getElementById('dash-date');if(dd)dd.textContent=nowDate();
+  const host=document.getElementById('dash-devs');if(!host)return;
+  const rows=[];
+  Object.keys(DEVLOG).forEach(k=>DEVLOG[k].forEach(d=>rows.push({k,d})));
+  rows.sort((x,y)=>y.d.ms-x.d.ms);
+  document.getElementById('dash-dev-count').textContent=rows.length;
+  if(!rows.length){host.innerHTML='<div class="dev-empty" style="padding:14px 16px">No deviations logged.</div>';return;}
+  const th='padding:8px 12px;text-align:left;font-size:10px;color:var(--text-3);font-weight:600;border-bottom:0.5px solid var(--border);letter-spacing:.04em;text-transform:uppercase';
+  host.innerHTML='<div style="overflow-x:auto"><table style="width:100%;font-size:12px;border-collapse:collapse;min-width:560px"><thead><tr><th style="'+th+'">Sample</th><th style="'+th+'">Deviation</th><th style="'+th+'">Source</th><th style="'+th+'">Notified</th><th style="'+th+'">Status</th></tr></thead><tbody>'+
+   rows.map(({k,d})=>{const open=!d.action||!d.notified;const who=k.startsWith('shipment')?'Shipment':k.replace('|',' ');
+     return '<tr style="border-bottom:0.5px solid var(--border)"><td style="padding:9px 12px;font-family:var(--mono);font-size:11px">'+esc(who)+'</td><td style="padding:9px 12px">'+esc(d.detail)+'<div style="font-size:10px;color:var(--text-3)">'+fD(d.ms)+'</div></td><td style="padding:9px 12px">'+esc(d.src)+'</td><td style="padding:9px 12px">'+(d.notified?esc(d.notified):'<span class="dev-missing">—</span>')+'</td><td style="padding:9px 12px"><span class="dev-pill">'+(open?'Action needed':'Documented')+'</span></td></tr>';}).join('')+'</tbody></table></div>';
+}
+renderDashDevs();
+
+// ─── Re-route when crossing the mobile breakpoint (rotate / resize / viewer width change) ───
+function _onBreakpoint(){
+  closeDrawer();
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  if(isMobile()){
+    const mh=document.getElementById('view-mobile-home');if(mh)mh.classList.add('active');
+    setMobNavActive('bn-home');
+  }else{
+    const dw=document.getElementById('view-welcome');if(dw)dw.classList.add('active');
+  }
+}
+if(_mq.addEventListener)_mq.addEventListener('change',_onBreakpoint);
+else if(_mq.addListener)_mq.addListener(_onBreakpoint);
 </script>
 </body>
 </html>
